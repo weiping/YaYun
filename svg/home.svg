@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="375" height="812" viewBox="0 0 375 812" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <!-- 模拟手机边框 -->
+  <rect x="0.5" y="0.5" width="374" height="811" rx="40" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="1"/>
+  
+  <!-- 定义滤镜效果 -->
+  <defs>
+    <!-- 卡片阴影效果 -->
+    <filter id="card-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.2"/>
+    </filter>
+    
+    <!-- 玻璃拟态效果 -->
+    <filter id="glass-morphism" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="glass"/>
+      <feComposite in="SourceGraphic" in2="glass" operator="atop"/>
+    </filter>
+    
+    <!-- 高光效果 -->
+    <linearGradient id="highlight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    
+    <!-- 卡片悬浮效果 -->
+    <filter id="hover-effect" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="10" result="blur"/>
+      <feOffset in="blur" dx="0" dy="4" result="offsetBlur"/>
+      <feFlood flood-color="#8B0000" flood-opacity="0.3" result="coloredBlur"/>
+      <feComposite in="coloredBlur" in2="offsetBlur" operator="in" result="coloredBlurOffset"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="drop"/>
+      <feOffset in="drop" dx="0" dy="2" result="dropOffset"/>
+      <feFlood flood-color="#000000" flood-opacity="0.2" result="dropColor"/>
+      <feComposite in="dropColor" in2="dropOffset" operator="in" result="dropShadow"/>
+      <feMerge>
+        <feMergeNode in="coloredBlurOffset"/>
+        <feMergeNode in="dropShadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- 图标系统 -->
+  <defs>
+    <!-- 首页图标 -->
+    <symbol id="icon-home" viewBox="0 0 24 24">
+      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="currentColor"/>
+    </symbol>
+    
+    <!-- 发现图标 -->
+    <symbol id="icon-discover" viewBox="0 0 24 24">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="currentColor"/>
+      <path d="M15.88 8.29L10 14.17l-1.88-1.88a.996.996 0 1 0-1.41 1.41l2.59 2.59c.39.39 1.02.39 1.41 0l6.59-6.59a.996.996 0 0 0 0-1.41c-.39-.38-1.03-.39-1.42 0z" fill="currentColor"/>
+    </symbol>
+    
+    <!-- 搜索图标 -->
+    <symbol id="icon-search" viewBox="0 0 24 24">
+      <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/>
+    </symbol>
+    
+    <!-- 个人图标 -->
+    <symbol id="icon-profile" viewBox="0 0 24 24">
+      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
+    </symbol>
+    
+    <!-- 播放图标 -->
+    <symbol id="icon-play" viewBox="0 0 24 24">
+      <path d="M8 5v14l11-7z" fill="currentColor"/>
+    </symbol>
+    
+    <!-- 暂停图标 -->
+    <symbol id="icon-pause" viewBox="0 0 24 24">
+      <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/>
+    </symbol>
+    
+    <!-- 下一首图标 -->
+    <symbol id="icon-next" viewBox="0 0 24 24">
+      <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" fill="currentColor"/>
+    </symbol>
+  </defs>
+  
+  <!-- 状态栏 -->
+  <g class="status-bar">
+    <rect x="0" y="0" width="375" height="44" fill-opacity="0.8" fill="#FFFFFF" filter="url(#glass-morphism)"/>
+    <!-- 时间 -->
+    <text x="24" y="28" font-family="'SF Pro Text'" font-size="14" font-weight="600" fill="#000000">9:41</text>
+    
+    <!-- 动态岛 -->
+    <rect x="130" y="10" width="114" height="32" rx="16" fill="#000000"/>
+    
+    <!-- 信号、WiFi、电池图标 -->
+    <g transform="translate(290, 15)">
+      <!-- 信号 -->
+      <path d="M0,6 L2,6 L2,0 L0,0 L0,6 Z M4,6 L6,6 L6,2 L4,2 L4,6 Z M8,6 L10,6 L10,4 L8,4 L8,6 Z" fill="#000000"/>
+      <!-- WiFi -->
+      <path d="M18,6 C15.24,6 12.8,4.7 11.4,2.7 L9.9,4.2 C11.7,6.8 14.7,8.6 18,8.6 C21.3,8.6 24.3,6.8 26.1,4.2 L24.6,2.7 C23.2,4.7 20.76,6 18,6 Z" fill="#000000" transform="translate(18, 0)"/>
+      <!-- 电池 -->
+      <rect x="38" y="0" width="24" height="12" rx="2" fill="none" stroke="#000000" stroke-width="1"/>
+      <rect x="40" y="2" width="18" height="8" rx="1" fill="#000000"/>
+      <rect x="64" y="4" width="2" height="4" rx="1" fill="#000000"/>
+    </g>
+  </g>
+  
+  <!-- 应用头部 -->
+  <g class="app-header" transform="translate(0, 44)">
+    <!-- 雅韵标志 - 文本转路径 -->
+    <g transform="translate(16, 20)">
+      <path d="M16.56,28.36C12.48,28.36 8.96,27.52 5.96,25.84C3,24.12 0.76,21.64 0.24,18.4L6.64,16.68C7,18.72 8.08,20.32 9.88,21.48C11.68,22.6 13.92,23.16 16.6,23.16C20.2,23.16 22.92,22.24 24.76,20.4C26.6,18.56 27.52,16.2 27.52,13.32C27.52,10.44 26.6,8.08 24.76,6.24C22.92,4.4 20.2,3.48 16.6,3.48C15.24,3.48 14,3.64 12.88,3.96C11.8,4.28 10.72,4.72 9.64,5.28L5.32,1.96L6.68,22.36L0.84,22.36L0.84,0.04L7.48,0.04L10.16,2.68C11.48,1.96 12.96,1.4 14.6,1C16.24,0.56 17.92,0.36 19.64,0.36C22.28,0.36 24.64,0.92 26.72,2.04C28.8,3.12 30.4,4.64 31.52,6.6C32.68,8.52 33.24,10.76 33.24,13.32C33.24,15.88 32.68,18.12 31.52,20.08C30.4,22 28.8,23.52 26.72,24.64C24.64,25.72 22.28,26.28 19.64,26.28C18.48,26.28 17.44,26.2 16.56,26.04L16.56,28.36Z" fill="#8B0000"/>
+      <path d="M59.1328,28.36C54.7728,28.36 51.1328,27.04 48.2128,24.4C45.2928,21.76 43.8328,18.36 43.8328,14.2C43.8328,10.04 45.2928,6.64 48.2128,4C51.1328,1.36 54.7728,0.04 59.1328,0.04C61.4528,0.04 63.5728,0.48 65.4928,1.36C67.4128,2.24 69.0328,3.44 70.3328,4.96L66.5728,8.44C65.5728,7.32 64.4328,6.48 63.1328,5.92C61.8328,5.36 60.4928,5.08 59.1328,5.08C56.3328,5.08 54.0528,5.92 52.2928,7.6C50.5328,9.28 49.6528,11.48 49.6528,14.2C49.6528,16.92 50.5328,19.12 52.2928,20.8C54.0528,22.48 56.3328,23.32 59.1328,23.32C60.4928,23.32 61.8328,23.04 63.1328,22.48C64.4328,21.92 65.5728,21.08 66.5728,19.96L70.3328,23.44C69.0328,24.96 67.4128,26.16 65.4928,27.04C63.5728,27.92 61.4528,28.36 59.1328,28.36Z" fill="#8B0000" transform="translate(35, 0)"/>
+    </g>
+  </g>
+  
+  <!-- 轮播图区域 -->
+  <g class="banner-section" transform="translate(16, 100)">
+    <rect x="0" y="0" width="343" height="180" rx="16" filter="url(#card-shadow)"/>
+    
+    <!-- 使用image标签外链unsplash图片 -->
+    <image xlink:href="https://images.unsplash.com/photo-1507838153414-b4b713384a76?auto=format&amp;fit=crop&amp;w=800&amp;q=80" 
+           x="0" y="0" width="343" height="180" preserveAspectRatio="xMidYMid slice" rx="16"/>
+    
+    <!-- 渐变遮罩 -->
+    <linearGradient id="banner-gradient" x1="0%" y1="60%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.7"/>
+    </linearGradient>
+    <rect x="0" y="0" width="343" height="180" rx="16" fill="url(#banner-gradient)"/>
+    
+    <!-- 轮播文本 - 转为路径 -->
+    <g transform="translate(20, 140)">
+      <path d="M10.81,19.204L10.81,1.724L14.29,1.724L14.29,16.024L22.97,16.024L22.97,19.204L10.81,19.204ZM34.616,19.484C32.736,19.484 31.096,19.054 29.696,18.194C28.316,17.334 27.256,16.144 26.516,14.624C25.776,13.104 25.406,11.404 25.406,9.524C25.406,7.644 25.776,5.944 26.516,4.424C27.256,2.904 28.316,1.714 29.696,0.854C31.096,0.994 32.736,-0.436 34.616,-0.436C36.416,-0.436 38.016,-0.006 39.416,0.854C40.816,1.714 41.876,2.904 42.596,4.424C43.336,5.944 43.706,7.644 43.706,9.524C43.706,11.404 43.336,13.104 42.596,14.624C41.876,16.144 40.816,17.334 39.416,18.194C38.016,19.054 36.416,19.484 34.616,19.484ZM34.616,16.304C36.096,16.304 37.316,15.714 38.276,14.534C39.236,13.354 39.716,11.684 39.716,9.524C39.716,7.364 39.236,5.694 38.276,4.514C37.316,3.334 36.096,2.744 34.616,2.744C33.096,2.744 31.866,3.334 30.926,4.514C29.986,5.694 29.516,7.364 29.516,9.524C29.516,11.684 29.986,13.354 30.926,14.534C31.866,15.714 33.096,16.304 34.616,16.304ZM53.9919,19.484C50.2719,19.484 47.3119,18.264 45.1119,15.824L47.6319,13.324C49.2919,15.084 51.3519,15.964 53.8119,15.964C55.0919,15.964 56.0719,15.694 56.7519,15.154C57.4319,14.594 57.7719,13.864 57.7719,12.964C57.7719,12.264 57.5719,11.694 57.1719,11.254C56.7719,10.814 56.2619,10.474 55.6419,10.234C55.0419,9.994 54.1519,9.724 52.9719,9.424C51.3319,9.024 50.0119,8.634 49.0119,8.254C48.0119,7.874 47.1419,7.274 46.4019,6.454C45.6619,5.634 45.2919,4.544 45.2919,3.184C45.2919,2.024 45.6019,0.994 46.2219,0.094C46.8619,-0.806 47.7619,-1.516 48.9219,-2.036C50.0819,-2.556 51.4019,-2.816 52.8819,-2.816C54.5819,-2.816 56.1219,-2.486 57.5019,-1.826C58.8819,-1.166 60.0119,-0.256 60.8919,0.904L58.3719,3.364C56.8319,1.844 55.0119,1.084 52.9119,1.084C51.7119,1.084 50.7719,1.374 50.0919,1.954C49.4119,2.534 49.0719,3.264 49.0719,4.144C49.0719,4.804 49.2619,5.344 49.6419,5.764C50.0219,6.184 50.5219,6.524 51.1419,6.784C51.7619,7.024 52.6619,7.294 53.8419,7.594C55.4819,8.014 56.7919,8.414 57.7719,8.794C58.7519,9.174 59.6119,9.774 60.3519,10.594C61.0919,11.414 61.4619,12.514 61.4619,13.894C61.4619,15.054 61.1519,16.094 60.5319,17.014C59.9119,17.934 59.0119,18.644 57.8319,19.144C56.6719,19.374 55.4719,19.484 53.9919,19.484Z" fill="white"/>
+      <path d="M7.23,19.94C6.43,19.94 5.69,19.84 5.01,19.64C4.33,19.44 3.77,19.17 3.33,18.83C2.89,18.49 2.55,18.1 2.31,17.66L4.29,16.28C4.69,16.96 5.16,17.43 5.7,17.69C6.24,17.95 6.85,18.08 7.53,18.08C8.35,18.08 8.99,17.91 9.45,17.57C9.93,17.23 10.17,16.79 10.17,16.25C10.17,15.83 10.03,15.5 9.75,15.26C9.47,15.02 9.12,14.83 8.7,14.69C8.28,14.55 7.71,14.39 6.99,14.21C6.03,13.97 5.25,13.73 4.65,13.49C4.05,13.25 3.53,12.89 3.09,12.41C2.65,11.93 2.43,11.29 2.43,10.49C2.43,9.69 2.66,9 3.12,8.42C3.58,7.84 4.22,7.39 5.04,7.07C5.86,6.75 6.79,6.59 7.83,6.59C8.55,6.59 9.23,6.68 9.87,6.86C10.53,7.04 11.11,7.3 11.61,7.64C12.11,7.98 12.53,8.38 12.87,8.84L10.89,10.22C10.53,9.72 10.1,9.36 9.6,9.14C9.12,8.9 8.54,8.78 7.86,8.78C7.12,8.78 6.54,8.94 6.12,9.26C5.7,9.58 5.49,10.01 5.49,10.55C5.49,10.97 5.62,11.31 5.88,11.57C6.14,11.81 6.47,12 6.87,12.14C7.29,12.28 7.85,12.44 8.55,12.62C9.51,12.86 10.29,13.1 10.89,13.34C11.49,13.58 12.01,13.94 12.45,14.42C12.91,14.9 13.14,15.55 13.14,16.37C13.14,17.13 12.92,17.81 12.48,18.41C12.04,19.01 11.41,19.47 10.59,19.79C9.79,19.89 8.97,19.94 7.23,19.94Z" fill="white" transform="translate(65, 0)"/>
+      <path d="M24.84,19.7L21.24,14.42L18.72,17.09L18.72,19.7L15.84,19.7L15.84,7L18.72,7L18.72,13.63L24.6,7L27.63,7L22.74,12.47L28.2,19.7L24.84,19.7Z" fill="white" transform="translate(80, 0)"/>
+      <path d="M34.794,19.7L31.974,15.08L29.154,19.7L26.034,19.7L30.174,13.18L26.124,7L29.214,7L31.974,11.32L34.704,7L37.824,7L33.774,13.24L37.914,19.7L34.794,19.7Z" fill="white" transform="translate(110, 0)"/>
+      <path d="M47.664,19.7L44.064,14.42L41.544,17.09L41.544,19.7L38.664,19.7L38.664,7L41.544,7L41.544,13.63L47.424,7L50.454,7L45.564,12.47L51.024,19.7L47.664,19.7Z" fill="white" transform="translate(140, 0)"/>
+    </g>
+  </g>
+  
+  <!-- 最新专辑部分 -->
+  <g class="albums-section" transform="translate(16, 300)">
+    <!-- 部分标题 -->
+    <g class="section-header">
+      <text font-family="'SF Pro Display'" font-size="20" font-weight="600" fill="#212121">最新专辑</text>
+      <text x="343" y="0" text-anchor="end" font-family="'SF Pro Text'" font-size="14" font-weight="500" fill="#8B0000">查看全部</text>
+    </g>
+    
+    <!-- 专辑网格 -->
+    <g class="albums-grid" transform="translate(0, 30)">
+      <!-- 专辑1 -->
+      <g class="album-card" filter="url(#card-shadow)" transform="translate(0, 0)">
+        <rect width="164" height="204" rx="12" fill="white"/>
+        <!-- 专辑封面 -->
+        <image xlink:href="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&amp;fit=crop&amp;w=800&amp;q=80" 
+               width="164" height="164" preserveAspectRatio="xMidYMid slice"/>
+        <!-- 专辑信息 -->
+        <g transform="translate(12, 174)">
+          <text font-family="'New York', serif" font-style="italic" font-size="14" font-weight="500" fill="#212121">莫扎特：小夜曲与嬉游曲</text>
+          <text y="16" font-family="'SF Pro Text'" font-size="12" fill="#757575">维也纳爱乐乐团</text>
+        </g>
+      </g>
+      
+      <!-- 专辑2 -->
+      <g class="album-card" filter="url(#card-shadow)" transform="translate(180, 0)">
+        <rect width="164" height="204" rx="12" fill="white"/>
+        <!-- 专辑封面 -->
+        <image xlink:href="https://images.unsplash.com/photo-1511735111819-9a3f7709049c?auto=format&amp;fit=crop&amp;w=800&amp;q=80" 
+               width="164" height="164" preserveAspectRatio="xMidYMid slice"/>
+        <!-- 专辑信息 -->
+        <g transform="translate(12, 174)">
+          <text font-family="'New York', serif" font-style="italic" font-size="14" font-weight="500" fill="#212121">肖邦：夜曲全集</text>
+          <text y="16" font-family="'SF Pro Text'" font-size="12" fill="#757575">阿格里奇</text>
+        </g>
+      </g>
+      
+      <!-- 专辑3（视觉上会被裁剪，但保留完整结构） -->
+      <g class="album-card" filter="url(#card-shadow)" transform="translate(0, 220)">
+        <rect width="164" height="204" rx="12" fill="white"/>
+        <!-- 专辑封面 -->
+        <image xlink:href="https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&amp;fit=crop&amp;w=800&amp;q=80" 
+               width="164" height="164" preserveAspectRatio="xMidYMid slice"/>
+        <!-- 专辑信息 -->
+        <g transform="translate(12, 174)">
+          <text font-family="'New York', serif" font-style="italic" font-size="14" font-weight="500" fill="#212121">贝多芬：第九交响曲</text>
+          <text y="16" font-family="'SF Pro Text'" font-size="12" fill="#757575">柏林爱乐乐团</text>
+        </g>
+      </g>
+      
+      <!-- 专辑4（视觉上会被裁剪，但保留完整结构） -->
+      <g class="album-card" filter="url(#card-shadow)" transform="translate(180, 220)">
+        <rect width="164" height="204" rx="12" fill="white"/>
+        <!-- 专辑封面 -->
+        <image xlink:href="https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?auto=format&amp;fit=crop&amp;w=800&amp;q=80" 
+               width="164" height="164" preserveAspectRatio="xMidYMid slice"/>
+        <!-- 专辑信息 -->
+        <g transform="translate(12, 174)">
+          <text font-family="'New York', serif" font-style="italic" font-size="14" font-weight="500" fill="#212121">德彪西：月光 & 印象集</text>
+          <text y="16" font-family="'SF Pro Text'" font-size="12" fill="#757575">郎朗</text>
+        </g>
+      </g>
+    </g>
+  </g>
+  
+  <!-- 热门歌单部分 -->
+  <g class="playlists-section" transform="translate(16, 550)">
+    <!-- 部分标题 -->
+    <g class="section-header">
+      <text font-family="'SF Pro Display'" font-size="20" font-weight="600" fill="#212121">热门歌单</text>
+      <text x="343" y="0" text-anchor="end" font-family="'SF Pro Text'" font-size="14" font-weight="500" fill="#8B0000">查看全部</text>
+    </g>
+    
+    <!-- 歌单横向滚动 -->
+    <g class="playlists-row" transform="translate(0, 30)">
+      <!-- 歌单1 - 应用悬浮效果 -->
+      <g class="playlist-card" filter="url(#hover-effect)" transform="translate(0, 0)">
+        <rect width="220" height="160" rx="12" fill="white"/>
+        <!-- 歌单封面 -->
+        <image xlink:href="https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&amp;fit=crop&amp;w=800&amp;q=80" 
+               width="220" height="120" preserveAspectRatio="xMidYMid slice"/>
+        <!-- 歌单信息 -->
+        <g transform="translate(12, 130)">
+          <text font-family="'SF Pro Display'" font-size="14" font-weight="600" fill="#212121">古典音乐入门必听50首</text>
+          <text y="16" font-family="'SF Pro Text'" font-size="12" fill="#757575">从巴赫到德彪西，带你领略音乐之美</text>
+        </g>
+      </g>
+      
+      <!-- 歌单2 -->
+      <g class="playlist-card" transform="translate(230, 0)">
+        <rect width="220" height="160" rx="12" fill="white" filter="url(#card-shadow)"/>
+        <!-- 歌单封面 -->
+        <image xlink:href="https://images.unsplash.com/photo-1454923634634-bd1614719a7b?auto=format&amp;fit=crop&amp;w=800&amp;q=80" 
+               width="220" height="120" preserveAspectRatio="xMidYMid slice"/>
+        <!-- 歌单信息 -->
+        <g transform="translate(12, 130)">
+          <text font-family="'SF Pro Display'" font-size="14" font-weight="600" fill="#212121">浪漫钢琴小品集</text>
+          <text y="16" font-family="'SF Pro Text'" font-size="12" fill="#757575">肖邦、李斯特、舒曼的钢琴诗篇</text>
+        </g>
+      </g>
+    </g>
+  </g>
+  
+  <!-- 播放条 -->
+  <g class="player-bar" transform="translate(0, 669)">
+    <rect x="0" y="0" width="375" height="60" fill-opacity="0.8" fill="#FFFFFF" filter="url(#glass-morphism)"/>
+    
+    <!-- 播放条内容 -->
+    <g transform="translate(16, 10)">
+      <!-- 专辑封面缩略图 -->
+      <rect width="40" height="40" rx="4" fill="#D8D8D8"/>
+      <image xlink:href="https://images.unsplash.com/photo-1507838153414-b4b713384a76?auto=format&amp;fit=crop&amp;w=80&amp;h=80&amp;q=80" 
+             width="40" height="40" preserveAspectRatio="xMidYMid slice" rx="4"/>
+      
+      <!-- 歌曲信息 -->
+      <g transform="translate(50, 10)">
+        <text font-family="'New York', serif" font-style="italic" font-size="14" font-weight="500" fill="#212121">莫扎特：D大调第三十八交响曲</text>
+        <text y="16" font-family="'SF Pro Text'" font-size="12" fill="#757575">维也纳爱乐乐团 / 伦纳德·伯恩斯坦</text>
+      </g>
+      
+      <!-- 控制按钮 -->
+      <g transform="translate(310, 20)">
+        <!-- 播放按钮 -->
+        <circle cx="0" cy="0" r="16" fill="none" stroke="#757575" stroke-width="1.5"/>
+        <use xlink:href="#icon-play" width="16" height="16" x="-8" y="-8" fill="#757575"/>
+        
+        <!-- 下一首按钮 -->
+        <g transform="translate(40, 0)">
+          <circle cx="0" cy="0" r="16" fill="none" stroke="#757575" stroke-width="1.5"/>
+          <use xlink:href="#icon-next" width="16" height="16" x="-8" y="-8" fill="#757575"/>
+        </g>
+      </g>
+    </g>
+    
+    <!-- 进度条 -->
+    <rect x="0" y="58" width="150" height="2" fill="#8B0000"/>
+  </g>
+  
+  <!-- 导航栏 -->
+  <g class="navigation-bar" transform="translate(0, 729)">
+    <rect x="0" y="0" width="375" height="83" fill-opacity="0.8" fill="#FFFFFF" filter="url(#glass-morphism)"/>
+    <line x1="0" y1="0" x2="375" y2="0" stroke="#E0E0E0" stroke-width="1"/>
+    
+    <!-- 导航项 - 首页（当前激活） -->
+    <g transform="translate(47, 16)">
+      <use xlink:href="#icon-home" width="24" height="24" x="0" y="0" fill="#8B0000"/>
+      <text y="36" text-anchor="middle" x="12" font-family="'SF Pro Text'" font-size="10" fill="#8B0000">首页</text>
+    </g>
+    
+    <!-- 导航项 - 发现 -->
+    <g transform="translate(141, 16)">
+      <use xlink:href="#icon-discover" width="24" height="24" x="0" y="0" fill="#757575"/>
+      <text y="36" text-anchor="middle" x="12" font-family="'SF Pro Text'" font-size="10" fill="#757575">发现</text>
+    </g>
+    
+    <!-- 导航项 - 搜索 -->
+    <g transform="translate(235, 16)">
+      <use xlink:href="#icon-search" width="24" height="24" x="0" y="0" fill="#757575"/>
+      <text y="36" text-anchor="middle" x="12" font-family="'SF Pro Text'" font-size="10" fill="#757575">搜索</text>
+    </g>
+    
+    <!-- 导航项 - 我的 -->
+    <g transform="translate(329, 16)">
+      <use xlink:href="#icon-profile" width="24" height="24" x="0" y="0" fill="#757575"/>
+      <text y="36" text-anchor="middle" x="12" font-family="'SF Pro Text'" font-size="10" fill="#757575">我的</text>
+    </g>
+    
+    <!-- 底部指示条 -->
+    <rect x="120" y="74" width="134" height="5" rx="2.5" fill="#000000" opacity="0.5"/>
+  </g>
+</svg> 

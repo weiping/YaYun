@@ -61,13 +61,13 @@ alwaysApply: true
 - /index.html：主入口
 - /pages/：所有独立页面（home.html, discover.html等）
 - /css/：样式文件，包含全局样式和组件样式
-- /js/：JavaScript逻辑，包含交互和动画效果
+- /js/：JavaScript文件（逻辑，包含交互和动画效果）
 - /assets/：图片和其他静态资源
 - /components/：可复用的HTML组件（状态栏、导航栏等）
 - /docs/：组件和页面说明文档
   - /docs/omponents/：组件说明文档
   - /docs/pages/：页面说明文档
-
+- /svg/：所有独立的SVG图片
 
 文档规范
 - 每个主要组件完成后在/docs/components/[component].md中记录说明，如/docs/components/player.md 等
@@ -126,4 +126,17 @@ JavaScript规范
 - 注释与文档  
   - 函数注释：在每个函数开头添加注释，描述其功能。  
   - JSDoc注释：对JavaScript代码使用JSDoc注释，并采用现代ES6语法。  
-  - TODO注释：若发现现有代码存在错误，或需求导致代码存在缺陷/次优设计，添加以“TODO:”开头的注释说明问题。  
+  - TODO注释：若发现现有代码存在错误，或需求导致代码存在缺陷/次优设计，添加以“TODO:”开头的注释说明问题。 
+
+SVG要求
+- 全矢量图形界面
+- 动态数据可视化动画
+- 符合Figma设计规范
+- 三级明暗层级关系
+- 画板尺寸：375x812（带1px描边模拟手机边框）
+- 必须包含：
+   - 矢量图标系统（使用<symbol>定义）
+   - 动态折线图（stroke-dasharray动画）
+   - 卡片悬浮效果（通过filter实现）
+   - 图片占位使用<image>标签外链unsplash
+   - 文本转曲：文字必须转为路径 
