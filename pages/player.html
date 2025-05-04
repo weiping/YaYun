@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>雅韵-播放页面</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600&family=SF+Pro+Text:wght@400;500&family=New+York:wght@400;500&display=swap');
+    
+    :root {
+      --brand-color: #8B0000;
+      --gold-color: #D4AF37;
+      --inactive-color: #757575;
+      --bg-light: #FFFFFF;
+      --bg-dark: #121212;
+      --text-primary-light: #212121;
+      --text-secondary-light: #757575;
+      --text-primary-dark: #FFFFFF;
+      --text-secondary-dark: #BDBDBD;
+    }
+    
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-light);
+      color: var(--text-primary-light);
+      width: 375px;
+      height: 812px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    body.dark {
+      background-color: var(--bg-dark);
+      color: var(--text-primary-dark);
+    }
+    
+    /* 状态栏 */
+    .status-bar {
+      height: 44px;
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+    
+    .dynamic-island {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 114px;
+      height: 32px;
+      background-color: #000;
+      border-radius: 20px;
+      z-index: 10;
+    }
+    
+    /* 页面容器 */
+    .player-container {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* 背景毛玻璃效果 */
+    .background-blur {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      filter: blur(30px);
+      opacity: 0.3;
+      z-index: -1;
+    }
+    
+    /* 顶部导航 */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 54px 20px 20px;
+      z-index: 10;
+    }
+    
+    .back-button {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.2);
+      color: var(--text-primary-light);
+      transition: all 0.2s;
+    }
+    
+    .dark .back-button {
+      background-color: rgba(0, 0, 0, 0.3);
+      color: var(--text-primary-dark);
+    }
+    
+    .back-button:active {
+      transform: scale(0.95);
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .more-button {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.2);
+      color: var(--text-primary-light);
+    }
+    
+    .dark .more-button {
+      background-color: rgba(0, 0, 0, 0.3);
+      color: var(--text-primary-dark);
+    }
+    
+    /* 唱片机区域 */
+    .vinyl-player {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      margin-top: 20px;
+      position: relative;
+    }
+    
+    /* 唱片区域 */
+    .vinyl-record-container {
+      position: relative;
+      width: 260px;
+      height: 260px;
+      z-index: 2;
+    }
+    
+    .vinyl-record {
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba(0,0,0,0.7) 30%, rgba(40,40,40,0.7) 31%, rgba(40,40,40,0.7) 70%, rgba(0,0,0,0.7) 71%);
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      animation: rotateDisk 20s linear infinite;
+      animation-play-state: paused;
+      transform-origin: center center;
+      transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .vinyl-record.playing {
+      animation-play-state: running;
+    }
+    
+    .vinyl-record.pause-animation {
+      animation-play-state: paused;
+      transition: transform 0.5s ease-out;
+    }
+    
+    @keyframes rotateDisk {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+    
+    .vinyl-grooves {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: repeating-radial-gradient(
+        circle at center,
+        rgba(0,0,0,0) 0px,
+        rgba(0,0,0,0) 2px,
+        rgba(150,150,150,0.1) 3px,
+        rgba(0,0,0,0) 4px
+      );
+      z-index: 2;
+    }
+    
+    .vinyl-label {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      overflow: hidden;
+      z-index: 3;
+    }
+    
+    .vinyl-label img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .vinyl-reflection {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.1) 100%);
+      z-index: 4;
+      pointer-events: none;
+    }
+    
+    /* 唱针 */
+    .tonearm-container {
+      position: absolute;
+      top: -30px;
+      right: -20px;
+      width: 120px;
+      height: 160px;
+      z-index: 5;
+      transform-origin: 70% 15%;
+      transform: rotate(-30deg);
+      transition: transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .tonearm-container.playing {
+      transform: rotate(0deg);
+    }
+    
+    .tonearm {
+      position: relative;
+      width: 10px;
+      height: 120px;
+      background: linear-gradient(to right, #777, #999, #777);
+      border-radius: 5px;
+      transform-origin: top center;
+      margin-left: 50px;
+    }
+    
+    .tonearm-head {
+      position: absolute;
+      bottom: -10px;
+      left: -5px;
+      width: 20px;
+      height: 30px;
+      background: linear-gradient(to right, #555, #888, #555);
+      border-radius: 3px;
+    }
+    
+    .tonearm-pivot {
+      position: absolute;
+      top: 0;
+      left: 40px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, #AAA, #666);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* 唱片封面显示在唱片中央 */
+    .album-cover {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      height: 90%;
+      border-radius: 50%;
+      overflow: hidden;
+      z-index: 1;
+    }
+    
+    .album-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      opacity: 0.7;
+    }
+    
+    /* 歌曲信息 */
+    .song-info {
+      margin-top: 40px;
+      width: 100%;
+      text-align: center;
+    }
+    
+    .song-title {
+      font-family: 'New York', serif;
+      font-style: italic;
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    
+    .song-artist {
+      font-size: 16px;
+      color: var(--text-secondary-light);
+      margin-bottom: 20px;
+    }
+    
+    .dark .song-artist {
+      color: var(--text-secondary-dark);
+    }
+    
+    /* 进度条 */
+    .progress-container {
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background-color: rgba(150, 150, 150, 0.3);
+      border-radius: 2px;
+      position: relative;
+      margin-bottom: 10px;
+    }
+    
+    .progress-current {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background-color: var(--brand-color);
+      border-radius: 2px;
+      width: 30%;
+    }
+    
+    .progress-handle {
+      position: absolute;
+      top: 50%;
+      left: 30%;
+      transform: translate(-50%, -50%);
+      width: 12px;
+      height: 12px;
+      background-color: var(--brand-color);
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .time-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-secondary-light);
+    }
+    
+    .dark .time-info {
+      color: var(--text-secondary-dark);
+    }
+    
+    /* 控制按钮 */
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 30px 40px 40px;
+    }
+    
+    .control-button {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: transparent;
+      color: var(--text-primary-light);
+      font-size: 18px;
+      transition: all 0.2s;
+    }
+    
+    .dark .control-button {
+      color: var(--text-primary-dark);
+    }
+    
+    .control-button:active {
+      transform: scale(0.95);
+    }
+    
+    .play-button {
+      width: 64px;
+      height: 64px;
+      background-color: var(--brand-color);
+      color: white;
+      font-size: 20px;
+      box-shadow: 0 4px 12px rgba(139, 0, 0, 0.3);
+    }
+    
+    /* 底部功能按钮 */
+    .bottom-actions {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 40px 30px;
+    }
+    
+    .action-button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text-secondary-light);
+      font-size: 12px;
+    }
+    
+    .dark .action-button {
+      color: var(--text-secondary-dark);
+    }
+    
+    .action-icon {
+      margin-bottom: 6px;
+      font-size: 20px;
+    }
+    
+    .action-button.active {
+      color: var(--brand-color);
+    }
+    
+    /* 音频可视化 */
+    .audio-visualization {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      padding: 0 40px;
+      box-sizing: border-box;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 1;
+    }
+    
+    .audio-visualization.visible {
+      opacity: 1;
+    }
+    
+    .visualizer-bar {
+      width: 3px;
+      height: 5px;
+      margin: 0 2px;
+      background-color: var(--brand-color);
+      border-radius: 1px;
+      transition: height 0.05s ease;
+    }
+    
+    /* 音质选择增强 */
+    .quality-selector {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0 0 20px;
+      position: relative;
+    }
+    
+    .quality-option {
+      padding: 6px 12px;
+      margin: 0 6px;
+      border-radius: 14px;
+      font-size: 12px;
+      background-color: rgba(150, 150, 150, 0.1);
+      color: var(--text-secondary-light);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .dark .quality-option {
+      background-color: rgba(150, 150, 150, 0.2);
+      color: var(--text-secondary-dark);
+    }
+    
+    .quality-option.active {
+      background-color: var(--brand-color);
+      color: white;
+      box-shadow: 0 2px 8px rgba(139, 0, 0, 0.3);
+    }
+    
+    .quality-option .ripple {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      pointer-events: none;
+    }
+    
+    @keyframes ripple {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+    
+    .quality-tooltip {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(-10px);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      width: max-content;
+      z-index: 10;
+    }
+    
+    .quality-tooltip.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-5px);
+    }
+    
+    .quality-tooltip:after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
+    }
+    
+    /* 底部安全区 */
+    .bottom-safe-area {
+      height: 34px;
+    }
+    
+    /* 粒子效果 */
+    .particles-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 100;
+    }
+    
+    .particle {
+      position: absolute;
+      background-color: var(--brand-color);
+      border-radius: 50%;
+      opacity: 0.6;
+      transform: scale(0);
+      animation: particleAnimation 0.6s ease-out forwards;
+    }
+    
+    @keyframes particleAnimation {
+      0% {
+        transform: scale(0);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body class="dark">
+  <div class="player-container">
+    <!-- 背景毛玻璃效果 -->
+    <div class="background-blur" style="background-image: url(https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&w=800&q=80)"></div>
+    
+    <!-- 状态栏 -->
+    <div class="status-bar">
+      <div class="time text-sm font-semibold">9:41</div>
+      <div class="dynamic-island"></div>
+      <div class="status-icons flex items-center space-x-1.5">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M1 20h22v2H1v-2zm0-2h22v-2H1v2zm0-4h22v-2H1v2zm0-4h22V8H1v2zm0-6v2h22V4H1z"/>
+        </svg>
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 6C8.62 6 5.5 7.12 3 9L1.2 6.6C4.21 4.34 7.95 3 12 3s7.79 1.34 10.8 3.6L21 9c-2.5-1.88-5.62-3-9-3zm0 6c-1.94 0-3.75.5-5.33 1.33L4.8 11.4C6.87 10.23 9.33 9.5 12 9.5s5.13.73 7.2 1.9l-1.87 1.93C15.75 12.5 13.94 12 12 12zm0 6c-.89 0-1.74-.2-2.5-.55l-2.43-2.48c1.46-.64 3.08-1 4.93-1s3.47.36 4.93 1l-2.43 2.48c-.76.35-1.61.55-2.5.55z"/>
+        </svg>
+        <div class="battery flex items-center">
+          <svg class="w-6 h-4" viewBox="0 0 25 12" fill="none" stroke="currentColor">
+            <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke-width="1"/>
+            <rect x="2" y="2" width="16" height="8" fill="currentColor"/>
+            <rect x="23" y="4" width="2" height="4" fill="currentColor"/>
+          </svg>
+          <span class="text-xs ml-0.5">80%</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 顶部导航 -->
+    <div class="top-bar">
+      <div class="back-button">
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="more-button">
+        <i class="fas fa-ellipsis-vertical"></i>
+      </div>
+    </div>
+    
+    <!-- 唱片机区域 -->
+    <div class="vinyl-player">
+      <!-- 唱针 -->
+      <div class="tonearm-container" id="tonearm">
+        <div class="tonearm-pivot"></div>
+        <div class="tonearm">
+          <div class="tonearm-head"></div>
+        </div>
+      </div>
+      
+      <!-- 唱片区域 -->
+      <div class="vinyl-record-container">
+        <div class="vinyl-record" id="vinyl">
+          <div class="vinyl-grooves"></div>
+          <div class="vinyl-label">
+            <div class="label-artwork">
+              <img src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?auto=format&fit=crop&w=300&q=80" alt="专辑封面" class="artwork">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 音频可视化 -->
+      <div class="audio-visualization" id="audioVisualization"></div>
+      
+      <!-- 歌曲信息 -->
+      <div class="song-info">
+        <div class="song-title">莫扎特：第三十五交响曲 "哈夫纳"</div>
+        <div class="song-artist">维也纳爱乐乐团 · 伦纳德·伯恩斯坦</div>
+      </div>
+      
+      <!-- 进度条 -->
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-current" id="progress-current"></div>
+          <div class="progress-handle" id="progress-handle"></div>
+        </div>
+        <div class="time-info">
+          <div class="time-current">2:45</div>
+          <div class="time-total">8:23</div>
+        </div>
+      </div>
+      
+      <!-- 控制按钮 -->
+      <div class="controls">
+        <div class="control-button">
+          <i class="fas fa-backward-step"></i>
+        </div>
+        <div class="control-button">
+          <i class="fas fa-backward"></i>
+        </div>
+        <div class="control-button play-button" id="play-button">
+          <i class="fas fa-play" id="play-icon"></i>
+        </div>
+        <div class="control-button">
+          <i class="fas fa-forward"></i>
+        </div>
+        <div class="control-button">
+          <i class="fas fa-forward-step"></i>
+        </div>
+      </div>
+      
+      <!-- 音质选择 -->
+      <div class="quality-selector">
+        <div class="quality-tooltip" id="qualityTooltip">选择音质会影响音乐细节和流量消耗</div>
+        <div class="quality-option" data-quality="standard" onclick="setQuality('standard')">标准音质</div>
+        <div class="quality-option active" data-quality="high" onclick="setQuality('high')">高品质</div>
+        <div class="quality-option" data-quality="lossless" onclick="setQuality('lossless')">无损</div>
+      </div>
+      
+      <!-- 底部功能按钮 -->
+      <div class="bottom-actions">
+        <div class="action-button">
+          <i class="action-icon fas fa-share-nodes"></i>
+          <span>分享</span>
+        </div>
+        <div class="action-button">
+          <i class="action-icon fas fa-download"></i>
+          <span>下载</span>
+        </div>
+        <div class="action-button active">
+          <i class="action-icon fas fa-heart"></i>
+          <span>收藏</span>
+        </div>
+        <div class="action-button">
+          <i class="action-icon fas fa-comment"></i>
+          <span>评论</span>
+        </div>
+      </div>
+      
+      <!-- 底部安全区 -->
+      <div class="bottom-safe-area"></div>
+    </div>
+    
+    <!-- 粒子效果容器 -->
+    <div class="particles-container" id="particles-container"></div>
+  </div>
+
+  <script>
+    // 播放状态
+    let isPlaying = false;
+    
+    // 播放/暂停控制
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      const vinylRecord = document.getElementById('vinyl-record');
+      const playIcon = document.getElementById('play-icon');
+      
+      if (isPlaying) {
+        vinylRecord.classList.add('playing');
+        playIcon.classList.remove('fa-play');
+        playIcon.classList.add('fa-pause');
+        startProgressAnimation();
+      } else {
+        vinylRecord.classList.remove('playing');
+        playIcon.classList.remove('fa-pause');
+        playIcon.classList.add('fa-play');
+        stopProgressAnimation();
+      }
+      
+      // 生成粒子效果
+      createParticles(document.getElementById('play-button'));
+    }
+    
+    // 切换浅色/深色模式 - 在window对象上暴露此函数以便iframe访问
+    window.toggleTheme = function(isDark) {
+      const body = document.body;
+      const statusBar = document.querySelector('.status-bar');
+      const backButton = document.querySelector('.back-button');
+      const moreButton = document.querySelector('.more-button');
+      const songArtist = document.querySelector('.song-artist');
+      const timeInfo = document.querySelector('.time-info');
+      const qualityOptions = document.querySelectorAll('.quality-option:not(.active)');
+      const actionButtons = document.querySelectorAll('.action-button:not(.active)');
+      
+      // 如果提供了isDark参数，则直接设置指定模式
+      if (isDark !== undefined) {
+        const currentIsDark = body.classList.contains('dark');
+        if (isDark === currentIsDark) return; // 已经是指定模式，不做任何操作
+        
+        if (isDark) {
+          body.classList.add('dark');
+        } else {
+          body.classList.remove('dark');
+        }
+      } else {
+        // 否则切换当前模式
+        body.classList.toggle('dark');
+        isDark = body.classList.contains('dark');
+      }
+      
+      // 更新状态栏颜色
+      if (statusBar) {
+        statusBar.style.color = isDark ? '#FFFFFF' : '#000000';
+      }
+      
+      // 更新按钮颜色
+      if (backButton) {
+        backButton.style.backgroundColor = isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.2)';
+        backButton.style.color = isDark ? '#FFFFFF' : '#000000';
+      }
+      
+      if (moreButton) {
+        moreButton.style.backgroundColor = isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.2)';
+        moreButton.style.color = isDark ? '#FFFFFF' : '#000000';
+      }
+      
+      // 更新歌曲艺术家文本颜色
+      if (songArtist) {
+        songArtist.style.color = isDark ? 'var(--text-secondary-dark)' : 'var(--text-secondary-light)';
+      }
+      
+      // 更新时间信息颜色
+      if (timeInfo) {
+        timeInfo.style.color = isDark ? 'var(--text-secondary-dark)' : 'var(--text-secondary-light)';
+      }
+      
+      // 更新音质选项颜色（非激活状态）
+      qualityOptions.forEach(option => {
+        option.style.color = isDark ? 'var(--text-secondary-dark)' : 'var(--text-secondary-light)';
+        option.style.backgroundColor = isDark ? 'rgba(150, 150, 150, 0.2)' : 'rgba(150, 150, 150, 0.1)';
+      });
+      
+      // 更新底部功能按钮颜色（非激活状态）
+      actionButtons.forEach(button => {
+        button.style.color = isDark ? 'var(--text-secondary-dark)' : 'var(--text-secondary-light)';
+      });
+      
+      // 保存主题设置到本地存储
+      if (window.parent === window) { // 只有在独立打开时才保存
+        localStorage.setItem('yayun-theme', isDark ? 'dark' : 'light');
+      }
+      
+      return isDark; // 返回当前主题状态
+    };
+    
+    // 生成粒子动画效果
+    function createParticles(element) {
+      const container = document.getElementById('particles-container');
+      const rect = element.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      
+      // 创建10-15个粒子
+      const particleCount = Math.floor(Math.random() * 6) + 10;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        // 随机大小 (3-6px)
+        const size = Math.random() * 3 + 3;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // 随机位置 (围绕点击中心)
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * 40 + 10;
+        const x = centerX + Math.cos(angle) * distance;
+        const y = centerY + Math.sin(angle) * distance;
+        
+        particle.style.left = `${x}px`;
+        particle.style.top = `${y}px`;
+        
+        // 添加到容器
+        container.appendChild(particle);
+        
+        // 动画结束后移除
+        setTimeout(() => {
+          particle.remove();
+        }, 600);
+      }
+    }
+    
+    // 进度条动画
+    let progressInterval;
+    function startProgressAnimation() {
+      let progress = parseInt(document.getElementById('progress-current').style.width) || 30;
+      clearInterval(progressInterval);
+      
+      progressInterval = setInterval(() => {
+        progress += 0.1;
+        if (progress >= 100) {
+          progress = 0;
+        }
+        
+        document.getElementById('progress-current').style.width = `${progress}%`;
+        document.getElementById('progress-handle').style.left = `${progress}%`;
+        
+        // 更新时间显示
+        updateTimeDisplay(progress);
+      }, 100);
+    }
+    
+    function stopProgressAnimation() {
+      clearInterval(progressInterval);
+    }
+    
+    // 更新时间显示
+    function updateTimeDisplay(progress) {
+      // 总时长 8:23 = 503秒
+      const totalSeconds = 503;
+      const currentSeconds = Math.floor(totalSeconds * progress / 100);
+      
+      const minutes = Math.floor(currentSeconds / 60);
+      const seconds = currentSeconds % 60;
+      
+      const formattedTime = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+      document.querySelector('.time-current').textContent = formattedTime;
+    }
+    
+    // 更新状态栏时间
+    function updateStatusTime() {
+      const now = new Date();
+      let hours = now.getHours();
+      let minutes = now.getMinutes();
+      
+      // 格式化时间
+      hours = hours < 10 ? '0' + hours : hours;
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      
+      document.querySelector('.time').textContent = `${hours}:${minutes}`;
+    }
+    
+    // 为音质选项添加点击事件
+    function initQualitySelector() {
+      const qualityOptions = document.querySelectorAll('.quality-option');
+      
+      qualityOptions.forEach(option => {
+        option.addEventListener('click', function() {
+          // 移除所有选项的激活状态
+          qualityOptions.forEach(opt => opt.classList.remove('active'));
+          
+          // 为当前选项添加激活状态
+          this.classList.add('active');
+          
+          // 生成粒子效果
+          createParticles(this);
+        });
+      });
+    }
+    
+    // 点击按钮事件
+    document.getElementById('play-button').addEventListener('click', togglePlay);
+    
+    // 返回按钮点击事件
+    document.querySelector('.back-button').addEventListener('click', function() {
+      // 在实际APP中，这里会返回上一页
+      console.log('返回上一页');
+    });
+    
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      // 初始化主题
+      initTheme();
+      
+      // 初始化音质选择器
+      initQualitySelector();
+      
+      // 更新状态栏时间
+      updateStatusTime();
+      
+      // 每分钟更新一次时间
+      setInterval(updateStatusTime, 60000);
+      
+      // 初始化进度条位置
+      document.getElementById('progress-current').style.width = '30%';
+      document.getElementById('progress-handle').style.left = '30%';
+    });
+    
+    // 主题初始化和事件监听
+    function initTheme() {
+      // 检查是否为iframe嵌入
+      const isIframe = window.parent !== window;
+      let themeSet = false;
+      
+      // 优先使用父页面设置的主题
+      if (isIframe) {
+        try {
+          const parentIsDark = window.parent.document.documentElement.classList.contains('dark');
+          // 使用父页面的主题设置
+          toggleTheme(parentIsDark);
+          console.log('从父页面继承主题设置:', parentIsDark ? '深色' : '浅色');
+          themeSet = true;
+        } catch (e) {
+          console.log('无法访问父页面主题设置:', e);
+        }
+      }
+      
+      // 其次使用本地存储中的主题设置
+      if (!themeSet && !isIframe) {
+        const savedTheme = localStorage.getItem('yayun-theme');
+        if (savedTheme) {
+          toggleTheme(savedTheme === 'dark');
+          console.log('使用保存的主题设置:', savedTheme);
+          themeSet = true;
+        }
+      }
+      
+      // 最后才使用系统主题偏好，但不覆盖页面默认深色主题
+      if (!themeSet && !document.body.classList.contains('dark')) {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        toggleTheme(prefersDark);
+        console.log('使用系统主题偏好:', prefersDark ? '深色' : '浅色');
+      }
+      
+      // 监听系统主题变化 - 仅当作为独立页面打开时才响应系统变化
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleSystemThemeChange = e => {
+        // 仅当作为独立页面打开时才响应系统变化
+        if (window.parent === window) {
+          toggleTheme(e.matches);
+          console.log('系统主题变化为:', e.matches ? '深色' : '浅色');
+        }
+      };
+      
+      // 兼容不同浏览器的事件监听方式
+      if (mediaQuery.addEventListener) {
+        mediaQuery.addEventListener('change', handleSystemThemeChange);
+      } else if (mediaQuery.addListener) {
+        // 旧版API，用于兼容Safari
+        mediaQuery.addListener(handleSystemThemeChange);
+      }
+      
+      // 监听来自父页面的主题切换消息
+      window.addEventListener('message', function(event) {
+        // 安全检查：确保消息来源可信
+        if (event.data && event.data.type === 'themeChange') {
+          console.log('播放页接收到主题切换消息:', event.data.isDark);
+          toggleTheme(event.data.isDark);
+        }
+      });
+      
+      // 添加主题切换按钮事件（在播放页面，我们使用顶部的更多按钮来切换主题）
+      const moreButton = document.querySelector('.more-button');
+      if (moreButton) {
+        moreButton.addEventListener('click', function() {
+          const isDark = toggleTheme();
+          createParticles(this); // 添加粒子效果
+          console.log('主题切换为:', isDark ? '深色' : '浅色');
+        });
+      }
+    }
+
+    // 控制变量和元素引用
+    const visualizationContainer = document.getElementById('audioVisualization');
+    const qualityTooltip = document.getElementById('qualityTooltip');
+    
+    // 修改：使用外部已有变量而不是重新声明
+    let isVisualizationActive = false;
+    let visualizerBars = [];
+    
+    // 初始化音频可视化
+    function initAudioVisualization() {
+      // 创建32个条形
+      for (let i = 0; i < 32; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'visualizer-bar';
+        visualizationContainer.appendChild(bar);
+        visualizerBars.push(bar);
+      }
+    }
+    
+    // 更新音频可视化
+    function updateVisualization() {
+      if (!isVisualizationActive) return;
+      
+      // 使用随机高度模拟音频数据
+      visualizerBars.forEach(bar => {
+        // 播放状态下条形高度会变化
+        const height = isPlaying ? Math.random() * 40 + 5 : 5;
+        bar.style.height = `${height}px`;
+      });
+      
+      requestAnimationFrame(updateVisualization);
+    }
+    
+    // 切换音频可视化显示状态
+    function toggleVisualization() {
+      isVisualizationActive = !isVisualizationActive;
+      visualizationContainer.classList.toggle('visible', isVisualizationActive);
+      
+      if (isVisualizationActive) {
+        updateVisualization();
+      }
+    }
+    
+    // 音质选择
+    function setQuality(quality) {
+      const options = document.querySelectorAll('.quality-option');
+      options.forEach(option => {
+        option.classList.toggle('active', option.dataset.quality === quality);
+      });
+      
+      // 创建涟漪效果
+      const selectedOption = document.querySelector(`.quality-option[data-quality="${quality}"]`);
+      createQualityRipple(selectedOption);
+      
+      // 显示提示信息
+      showQualityTooltip(quality);
+      
+      // 创建粒子效果
+      createParticleEffect(selectedOption);
+    }
+    
+    // 涟漪效果
+    function createQualityRipple(element) {
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      element.appendChild(ripple);
+      
+      const rect = element.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      
+      ripple.style.width = ripple.style.height = `${size}px`;
+      ripple.style.left = `${event.clientX - rect.left - size / 2}px`;
+      ripple.style.top = `${event.clientY - rect.top - size / 2}px`;
+      
+      setTimeout(() => {
+        ripple.remove();
+      }, 600);
+    }
+    
+    // 显示音质提示
+    function showQualityTooltip(quality) {
+      let message = '';
+      
+      switch (quality) {
+        case 'standard':
+          message = '标准音质 (128kbps), 适合流量敏感场景';
+          break;
+        case 'high':
+          message = '高品质 (320kbps), 平衡音质与流量';
+          break;
+        case 'lossless':
+          message = '无损音质 (FLAC), 提供原始录音品质, 消耗更多流量';
+          break;
+      }
+      
+      qualityTooltip.textContent = message;
+      qualityTooltip.classList.add('visible');
+      
+      setTimeout(() => {
+        qualityTooltip.classList.remove('visible');
+      }, 3000);
+    }
+    
+    // 播放/暂停切换
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      
+      if (isPlaying) {
+        playIcon.classList.remove('fa-play');
+        playIcon.classList.add('fa-pause');
+        vinyl.classList.add('playing');
+        tonearm.classList.add('playing');
+        startProgress();
+      } else {
+        playIcon.classList.remove('fa-pause');
+        playIcon.classList.add('fa-play');
+        vinyl.classList.remove('playing');
+        tonearm.classList.remove('playing');
+        stopProgress();
+      }
+      
+      // 添加播放按钮粒子效果
+      createParticleEffect(playButton);
+      
+      // 更新音频可视化
+      if (isVisualizationActive) {
+        updateVisualization();
+      }
+    }
+    
+    // 上一曲
+    function prevTrack() {
+      // 实现唱片退出动画
+      if (isPlaying) {
+        stopProgress();
+        isPlaying = false;
+        playIcon.classList.remove('fa-pause');
+        playIcon.classList.add('fa-play');
+      }
+      
+      vinyl.classList.add('pause-animation');
+      tonearm.classList.remove('playing');
+      
+      setTimeout(() => {
+        // 切换完成后重置
+        vinyl.classList.remove('pause-animation');
+        vinyl.classList.remove('playing');
+        
+        // 重置进度
+        currentTime = 0;
+        updateProgressDisplay();
+      }, 800);
+      
+      createParticleEffect(document.getElementById('prevButton'));
+    }
+    
+    // 下一曲
+    function nextTrack() {
+      // 实现唱片退出动画
+      if (isPlaying) {
+        stopProgress();
+        isPlaying = false;
+        playIcon.classList.remove('fa-pause');
+        playIcon.classList.add('fa-play');
+      }
+      
+      vinyl.classList.add('pause-animation');
+      tonearm.classList.remove('playing');
+      
+      setTimeout(() => {
+        // 切换完成后重置
+        vinyl.classList.remove('pause-animation');
+        vinyl.classList.remove('playing');
+        
+        // 重置进度
+        currentTime = 0;
+        updateProgressDisplay();
+      }, 800);
+      
+      createParticleEffect(document.getElementById('nextButton'));
+    }
+    
+    // 开始进度更新
+    function startProgress() {
+      clearInterval(progressInterval);
+      progressInterval = setInterval(() => {
+        currentTime += 1;
+        if (currentTime >= totalTime) {
+          currentTime = 0;
+          nextTrack();
+        }
+        updateProgressDisplay();
+      }, 1000);
+    }
+    
+    // 停止进度更新
+    function stopProgress() {
+      clearInterval(progressInterval);
+    }
+    
+    // 更新进度显示
+    function updateProgressDisplay() {
+      const progress = (currentTime / totalTime) * 100;
+      progressBar.style.width = `${progress}%`;
+      progressHandle.style.left = `${progress}%`;
+      
+      // 更新时间显示
+      currentTimeEl.textContent = formatTime(currentTime);
+    }
+    
+    // 格式化时间
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+    
+    // 初始化
+    function init() {
+      // 设置总时长
+      totalTimeEl.textContent = formatTime(totalTime);
+      
+      // 初始化音频可视化
+      initAudioVisualization();
+      
+      // 更新初始进度
+      updateProgressDisplay();
+      
+      // 添加点击事件监听器
+      document.getElementById('visualizeButton').addEventListener('click', function() {
+        toggleVisualization();
+        this.classList.toggle('active');
+        createParticleEffect(this);
+      });
+      
+      // 加载完成后触发一次音质提示
+      setTimeout(() => {
+        showQualityTooltip('high');
+      }, 1500);
+    }
+    
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html> 

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>雅韵-迷你播放条组件</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600&family=SF+Pro+Text:wght@400;500&family=New+York:wght@400;500&display=swap');
+    
+    :root {
+      --brand-color: #8B0000;
+      --inactive-color: #757575;
+      --bg-light: rgba(255, 255, 255, 0.7);
+      --bg-dark: rgba(30, 30, 30, 0.7);
+      --text-light: #212121;
+      --text-dark: #FFFFFF;
+    }
+    
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background-color: #f5f5f5;
+    }
+    
+    .player-bar {
+      height: 60px;
+      width: 100%;
+      position: fixed;
+      z-index: 40;
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      transition: all 0.3s ease;
+      box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.05);
+      transform: translateY(0);
+    }
+    
+    .player-bar.light {
+      background-color: var(--bg-light);
+      color: var(--text-light);
+    }
+    
+    .player-bar.dark {
+      background-color: var(--bg-dark);
+      color: var(--text-dark);
+    }
+    
+    .player-bar.hidden {
+      transform: translateY(-100%);
+    }
+    
+    .album-cover {
+      width: 40px;
+      height: 40px;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .song-title {
+      font-family: 'New York', serif;
+      font-style: italic;
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 150px;
+    }
+    
+    .artist-name {
+      font-family: 'SF Pro Text', sans-serif;
+      font-size: 12px;
+      color: var(--inactive-color);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 150px;
+    }
+    
+    .control-button {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+    
+    .control-button:active {
+      transform: scale(0.9);
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+    
+    .progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      background-color: var(--brand-color);
+      width: 40%;
+      transition: width 0.1s linear;
+    }
+    
+    /* 左右滑动切换动画 */
+    .swipe-container {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(-100%); opacity: 0; }
+    }
+    
+    .slide-in {
+      animation: slideIn 0.3s forwards;
+    }
+    
+    .slide-out {
+      animation: slideOut 0.3s forwards;
+    }
+  </style>
+</head>
+<body>
+  <!-- 演示区域 -->
+  <div class="flex items-center justify-center h-screen">
+    <div class="text-center">
+      <h1 class="text-2xl font-bold text-gray-800">雅韵-迷你播放条组件</h1>
+      <div class="mt-4 space-x-4">
+        <button onclick="togglePlayerBar()" class="px-4 py-2 bg-gray-200 rounded">显示/隐藏播放条</button>
+        <button onclick="nextTrack()" class="px-4 py-2 bg-gray-200 rounded">下一曲</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 迷你播放条 -->
+  <div class="player-bar light hidden" id="player-bar">
+    <div class="swipe-container" id="swipe-container">
+      <div class="flex items-center justify-between h-full px-4">
+        <!-- 专辑封面 -->
+        <div class="album-cover">
+          <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?auto=format&fit=crop&w=80&h=80&q=80" alt="专辑封面" class="w-full h-full object-cover">
+        </div>
+        
+        <!-- 歌曲信息 -->
+        <div class="flex-1 ml-3 overflow-hidden">
+          <div class="song-title" id="song-title">莫扎特：D大调第三十八交响曲</div>
+          <div class="artist-name" id="artist-name">维也纳爱乐乐团 / 伦纳德·伯恩斯坦</div>
+        </div>
+        
+        <!-- 控制按钮 -->
+        <div class="flex items-center space-x-2">
+          <div class="control-button" onclick="togglePlay()">
+            <i class="fas fa-play" id="play-icon"></i>
+          </div>
+          <div class="control-button" onclick="nextTrack()">
+            <i class="fas fa-forward"></i>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 进度条 -->
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+  </div>
+
+  <script>
+    // 模拟播放状态
+    let isPlaying = false;
+    
+    // 示例曲目库
+    const tracks = [
+      {
+        title: "莫扎特：D大调第三十八交响曲",
+        artist: "维也纳爱乐乐团 / 伦纳德·伯恩斯坦",
+        cover: "https://images.unsplash.com/photo-1507838153414-b4b713384a76?auto=format&fit=crop&w=80&h=80&q=80",
+        progress: 40
+      },
+      {
+        title: "贝多芬：第五交响曲 "命运"",
+        artist: "柏林爱乐乐团 / 西蒙·拉特尔",
+        cover: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=80&h=80&q=80",
+        progress: 20
+      },
+      {
+        title: "柴可夫斯基：天鹅湖组曲",
+        artist: "伦敦交响乐团 / 瓦列里·捷杰耶夫",
+        cover: "https://images.unsplash.com/photo-1511735111819-9a3f7709049c?auto=format&fit=crop&w=80&h=80&q=80",
+        progress: 60
+      }
+    ];
+    
+    let currentTrackIndex = 0;
+    
+    // 切换播放/暂停
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      
+      const playIcon = document.getElementById('play-icon');
+      if (isPlaying) {
+        playIcon.classList.remove('fa-play');
+        playIcon.classList.add('fa-pause');
+        startProgressAnimation();
+      } else {
+        playIcon.classList.remove('fa-pause');
+        playIcon.classList.add('fa-play');
+        stopProgressAnimation();
+      }
+    }
+    
+    // 切换到下一曲
+    function nextTrack() {
+      // 播放动画效果
+      const container = document.getElementById('swipe-container');
+      const currentContent = container.innerHTML;
+      
+      // 创建当前内容的克隆，准备动画
+      const currentElement = document.createElement('div');
+      currentElement.innerHTML = currentContent;
+      currentElement.classList.add('absolute', 'top-0', 'left-0', 'w-full', 'h-full');
+      currentElement.classList.add('slide-out');
+      
+      // 获取下一首曲目
+      currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+      const nextTrack = tracks[currentTrackIndex];
+      
+      // 更新内容
+      updateTrackInfo(nextTrack);
+      
+      // 添加动画元素
+      container.appendChild(currentElement);
+      
+      // 动画结束后移除
+      setTimeout(() => {
+        currentElement.remove();
+      }, 300);
+    }
+    
+    // 更新曲目信息
+    function updateTrackInfo(track) {
+      document.getElementById('song-title').textContent = track.title;
+      document.getElementById('artist-name').textContent = track.artist;
+      document.querySelector('.album-cover img').src = track.cover;
+      document.getElementById('progress-bar').style.width = `${track.progress}%`;
+    }
+    
+    // 进度条动画
+    let progressInterval;
+    function startProgressAnimation() {
+      let progress = parseInt(document.getElementById('progress-bar').style.width) || 0;
+      clearInterval(progressInterval);
+      
+      progressInterval = setInterval(() => {
+        progress += 0.1;
+        if (progress >= 100) {
+          progress = 0;
+          nextTrack();
+        }
+        document.getElementById('progress-bar').style.width = `${progress}%`;
+      }, 100);
+    }
+    
+    function stopProgressAnimation() {
+      clearInterval(progressInterval);
+    }
+    
+    // 显示/隐藏播放条
+    function togglePlayerBar() {
+      const playerBar = document.getElementById('player-bar');
+      playerBar.classList.toggle('hidden');
+    }
+    
+    // 初始化播放条
+    function initPlayerBar() {
+      // 设置初始曲目信息
+      updateTrackInfo(tracks[currentTrackIndex]);
+      
+      // 添加滑动手势支持
+      const container = document.getElementById('swipe-container');
+      let startX, moveX;
+      
+      container.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+      });
+      
+      container.addEventListener('touchmove', (e) => {
+        moveX = e.touches[0].clientX;
+      });
+      
+      container.addEventListener('touchend', () => {
+        if (startX && moveX) {
+          const diff = moveX - startX;
+          // 向左滑动超过50px切换到下一曲
+          if (diff < -50) {
+            nextTrack();
+          }
+          // 向右滑动超过50px切换到上一曲
+          else if (diff > 50) {
+            // 这里可以实现上一曲功能
+          }
+        }
+        startX = null;
+        moveX = null;
+      });
+      
+      // 检测是否为深色模式
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      toggleTheme(prefersDark);
+      
+      // 监听系统颜色模式变化
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        toggleTheme(e.matches);
+      });
+    }
+    
+    // 切换浅色/深色模式
+    function toggleTheme(isDark) {
+      const playerBar = document.getElementById('player-bar');
+      
+      if (isDark) {
+        playerBar.classList.remove('light');
+        playerBar.classList.add('dark');
+      } else {
+        playerBar.classList.remove('dark');
+        playerBar.classList.add('light');
+      }
+    }
+    
+    // 初始化
+    document.addEventListener('DOMContentLoaded', initPlayerBar);
+  </script>
+</body>
+</html> 

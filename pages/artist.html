@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>艺术家详情 - 雅韵</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600&family=SF+Pro+Text:wght@400;500&family=New+York:wght@400;500&display=swap');
+    
+    :root {
+      --brand-color: #8B0000;
+      --gold-color: #D4AF37;
+      --text-color: #333333;
+      --text-color-subtle: #757575;
+      --border-color: #E5E5E5;
+      --background-color: #FFFFFF;
+      --background-color-subtle: #F5F5F5;
+      --background-dark: #1E1E1E;
+      --text-dark: #FFFFFF;
+      --text-dark-subtle: #AAAAAA;
+      --border-dark: #333333;
+    }
+
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      width: 375px;
+      height: 812px;
+      overflow: auto;
+    }
+
+    /* 深色模式 */
+    body.dark {
+      background-color: var(--background-dark);
+      color: var(--text-dark);
+    }
+
+    .content-container {
+      padding: 0 0 83px 0; /* 底部导航栏高度 */
+    }
+
+    /* 艺术家封面 */
+    .artist-hero {
+      position: relative;
+      height: 240px;
+      overflow: hidden;
+    }
+
+    .artist-cover {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 20%;
+    }
+
+    .artist-cover-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.7) 100%);
+    }
+
+    .artist-back-button {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .artist-info {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      color: white;
+    }
+
+    .artist-name {
+      font-family: 'New York', serif;
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .artist-stats {
+      display: flex;
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .artist-stats span {
+      margin-right: 15px;
+    }
+
+    .content-section {
+      padding: 24px 20px;
+    }
+
+    .section-title {
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    /* 艺术家介绍 */
+    .artist-bio {
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .artist-bio-card {
+      background-color: var(--background-color-subtle);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+
+    body.dark .artist-bio-card {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    /* 代表作品 */
+    .featured-works {
+      margin-bottom: 24px;
+    }
+
+    .work-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .work-item {
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      background-color: var(--background-color);
+      transition: transform 0.2s ease;
+    }
+
+    body.dark .work-item {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .work-item:active {
+      transform: scale(0.98);
+    }
+
+    .work-cover {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+    }
+
+    .work-info {
+      padding: 10px;
+    }
+
+    .work-title {
+      font-weight: 500;
+      font-size: 13px;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .work-subtitle {
+      font-size: 12px;
+      color: var(--text-color-subtle);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    body.dark .work-subtitle {
+      color: var(--text-dark-subtle);
+    }
+
+    /* 艺术家专辑 */
+    .artist-albums {
+      margin-bottom: 24px;
+    }
+
+    .album-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .album-item {
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      background-color: var(--background-color);
+      transition: transform 0.2s ease;
+    }
+
+    body.dark .album-item {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .album-item:active {
+      transform: scale(0.98);
+    }
+
+    .album-cover {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+    }
+
+    .album-info {
+      padding: 10px;
+    }
+
+    .album-title {
+      font-weight: 500;
+      font-size: 13px;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .album-year {
+      font-size: 12px;
+      color: var(--text-color-subtle);
+    }
+
+    body.dark .album-year {
+      color: var(--text-dark-subtle);
+    }
+
+    /* 相似艺术家 */
+    .similar-artists {
+      margin-bottom: 24px;
+    }
+
+    .artist-scroller {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 16px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .artist-item {
+      flex: 0 0 auto;
+      width: 100px;
+      text-align: center;
+    }
+
+    .artist-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .artist-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .artist-item-name {
+      font-weight: 500;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 按钮 */
+    .btn-follow {
+      background-color: var(--brand-color);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 20px;
+      font-weight: 500;
+      box-shadow: 0 2px 8px rgba(139, 0, 0, 0.3);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-follow:active {
+      transform: scale(0.98);
+      box-shadow: 0 1px 4px rgba(139, 0, 0, 0.2);
+    }
+
+    /* 分割线 */
+    .divider {
+      height: 1px;
+      background-color: var(--border-color);
+      margin: 24px 0;
+    }
+
+    body.dark .divider {
+      background-color: var(--border-dark);
+    }
+
+    /* 自定义滚动条 */
+    ::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+      background: transparent;
+    }
+
+    /* 粒子动画效果 */
+    @keyframes particleAnimation {
+      0% {
+        transform: scale(0);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 0;
+      }
+    }
+
+    .particle {
+      position: absolute;
+      background-color: var(--brand-color);
+      border-radius: 50%;
+      opacity: 0.6;
+      transform: scale(0);
+      animation: particleAnimation 0.6s ease-out forwards;
+    }
+  </style>
+</head>
+<body>
+  <!-- 引入状态栏 -->
+  <div id="status-bar-container">
+    <!-- 内联状态栏 -->
+    <div class="status-bar flex items-center justify-between px-5 light" id="status-bar" style="height: 44px; width: 100%; position: fixed; top: 0; left: 0; z-index: 50; background-color: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+      <!-- 左侧时间 -->
+      <div class="time text-sm font-semibold" id="status-time">9:41</div>
+      
+      <!-- 中间灵动岛区域 -->
+      <div class="dynamic-island w-28 h-8 rounded-full bg-black absolute left-1/2 transform -translate-x-1/2 top-0"></div>
+      
+      <!-- 右侧状态图标 -->
+      <div class="status-icons flex items-center space-x-1.5">
+        <!-- 信号强度 -->
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M1 20h22v2H1v-2zm0-2h22v-2H1v2zm0-4h22v-2H1v2zm0-4h22V8H1v2zm0-6v2h22V4H1z"/>
+        </svg>
+        
+        <!-- WiFi -->
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 6C8.62 6 5.5 7.12 3 9L1.2 6.6C4.21 4.34 7.95 3 12 3s7.79 1.34 10.8 3.6L21 9c-2.5-1.88-5.62-3-9-3zm0 6c-1.94 0-3.75.5-5.33 1.33L4.8 11.4C6.87 10.23 9.33 9.5 12 9.5s5.13.73 7.2 1.9l-1.87 1.93C15.75 12.5 13.94 12 12 12zm0 6c-.89 0-1.74-.2-2.5-.55l-2.43-2.48c1.46-.64 3.08-1-4.93-1s3.47.36 4.93 1l-2.43 2.48c-.76.35-1.61.55-2.5.55z"/>
+        </svg>
+        
+        <!-- 电池 -->
+        <div class="battery flex items-center">
+          <svg class="w-6 h-4" viewBox="0 0 25 12" fill="none" stroke="currentColor">
+            <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke-width="1"/>
+            <rect x="2" y="2" width="16" height="8" fill="currentColor"/>
+            <rect x="23" y="4" width="2" height="4" fill="currentColor"/>
+          </svg>
+          <span class="text-xs ml-0.5">80%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-container">
+    <!-- 艺术家封面 -->
+    <div class="artist-hero">
+      <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="维也纳爱乐乐团" class="artist-cover">
+      <div class="artist-cover-overlay"></div>
+      <button class="artist-back-button" onclick="history.back()">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <div class="artist-info">
+        <h1 class="artist-name">维也纳爱乐乐团</h1>
+        <div class="artist-stats">
+          <span><i class="fas fa-users mr-1"></i> 87.5万粉丝</span>
+          <span><i class="fas fa-headphones mr-1"></i> 1.2亿次收听</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-section">
+      <!-- 操作按钮 -->
+      <div class="flex justify-between items-center mb-6">
+        <button class="btn-follow" onclick="createParticleEffect(event)">
+          <i class="fas fa-plus mr-1"></i> 关注
+        </button>
+        
+        <div class="flex space-x-6">
+          <button class="text-center" onclick="createParticleEffect(event)">
+            <i class="fas fa-play-circle text-2xl block mb-1"></i>
+            <span class="text-xs">播放</span>
+          </button>
+          
+          <button class="text-center" onclick="createParticleEffect(event)">
+            <i class="fas fa-random text-2xl block mb-1"></i>
+            <span class="text-xs">随机</span>
+          </button>
+          
+          <button class="text-center" onclick="createParticleEffect(event)">
+            <i class="fas fa-share-alt text-2xl block mb-1"></i>
+            <span class="text-xs">分享</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 艺术家介绍 -->
+      <div class="artist-bio-card">
+        <p class="artist-bio">
+          维也纳爱乐乐团成立于1842年，是世界上最著名的交响乐团之一。乐团以其精湛的演奏技巧和独特的音色而闻名，尤其在演绎德奥古典音乐作品时具有无可比拟的权威性。乐团每年举行的维也纳新年音乐会更是成为了全球古典音乐界的盛事，吸引着数亿观众收看直播。
+        </p>
+        <p class="artist-bio mb-0">
+          自成立以来，维也纳爱乐乐团先后与众多传奇指挥家合作，包括卡拉扬、伯恩斯坦、布列兹、穆蒂等大师，留下了无数珍贵的经典录音。
+        </p>
+      </div>
+
+      <!-- 代表作品 -->
+      <div class="featured-works mb-8">
+        <h2 class="section-title">代表作品</h2>
+        <div class="work-grid">
+          <div class="work-item" onclick="createParticleEffect(event)">
+            <img src="https://images.unsplash.com/photo-1516307365426-bea591f05011?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" alt="贝多芬交响曲全集" class="work-cover">
+            <div class="work-info">
+              <div class="work-title">贝多芬交响曲全集</div>
+              <div class="work-subtitle">指挥：卡拉扬</div>
+            </div>
+          </div>
+          
+          <div class="work-item" onclick="createParticleEffect(event)">
+            <img src="https://images.unsplash.com/photo-1465821185615-20b3c2fbf41b?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" alt="莫扎特交响曲精选" class="work-cover">
+            <div class="work-info">
+              <div class="work-title">莫扎特交响曲精选</div>
+              <div class="work-subtitle">指挥：伦纳德·伯恩斯坦</div>
+            </div>
+          </div>
+          
+          <div class="work-item" onclick="createParticleEffect(event)">
+            <img src="https://images.unsplash.com/photo-1511735111819-9a3f7709049c?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" alt="2023年维也纳新年音乐会" class="work-cover">
+            <div class="work-info">
+              <div class="work-title">2023年维也纳新年音乐会</div>
+              <div class="work-subtitle">指挥：弗朗茨·韦尔泽-莫斯特</div>
+            </div>
+          </div>
+          
+          <div class="work-item" onclick="createParticleEffect(event)">
+            <img src="https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" alt="勃拉姆斯交响曲全集" class="work-cover">
+            <div class="work-info">
+              <div class="work-title">勃拉姆斯交响曲全集</div>
+              <div class="work-subtitle">指挥：克里斯蒂安·蒂勒曼</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- 艺术家专辑 -->
+      <div class="artist-albums mb-8">
+        <h2 class="section-title">专辑</h2>
+        <div class="album-grid">
+          <div class="album-item" onclick="createParticleEffect(event)">
+            <img src="https://images.unsplash.com/photo-1530650487991-b16599ee4fe7?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" alt="马勒交响曲第9号" class="album-cover">
+            <div class="album-info">
+              <div class="album-title">马勒交响曲第9号</div>
+              <div class="album-year">2022 • 指挥：莱昂纳德·伯恩斯坦</div>
+            </div>
+          </div>
+          
+          <div class="album-item" onclick="createParticleEffect(event)">
+            <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" alt="2020年维也纳新年音乐会" class="album-cover">
+            <div class="album-info">
+              <div class="album-title">2020年维也纳新年音乐会</div>
+              <div class="album-year">2020 • 指挥：安德里斯·尼尔森斯</div>
+            </div>
+          </div>
+          
+          <div class="album-item" onclick="createParticleEffect(event)">
+            <img src="https://images.unsplash.com/photo-1514119412350-e174d90d280e?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" alt="布鲁克纳：交响曲第4号" class="album-cover">
+            <div class="album-info">
+              <div class="album-title">布鲁克纳：交响曲第4号</div>
+              <div class="album-year">2019 • 指挥：克里斯蒂安·蒂勒曼</div>
+            </div>
+          </div>
+          
+          <div class="album-item" onclick="createParticleEffect(event)">
+            <img src="https://images.unsplash.com/photo-1512053459797-38c3a066cabd?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80" alt="施特劳斯圆舞曲全集" class="album-cover">
+            <div class="album-info">
+              <div class="album-title">施特劳斯圆舞曲全集</div>
+              <div class="album-year">2018 • 指挥：里卡多·穆蒂</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 相似艺术家 -->
+      <div class="similar-artists">
+        <h2 class="section-title">相似艺术家</h2>
+        <div class="artist-scroller">
+          <div class="artist-item" onclick="createParticleEffect(event)">
+            <div class="artist-avatar">
+              <img src="https://images.unsplash.com/photo-1506157786151-b8491531f063?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="柏林爱乐乐团">
+            </div>
+            <div class="artist-item-name">柏林爱乐乐团</div>
+          </div>
+          
+          <div class="artist-item" onclick="createParticleEffect(event)">
+            <div class="artist-avatar">
+              <img src="https://images.unsplash.com/photo-1484876065684-b683cf17d276?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="伦敦交响乐团">
+            </div>
+            <div class="artist-item-name">伦敦交响乐团</div>
+          </div>
+          
+          <div class="artist-item" onclick="createParticleEffect(event)">
+            <div class="artist-avatar">
+              <img src="https://images.unsplash.com/photo-1570294646112-27ce4f174e38?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="阿姆斯特丹皇家音乐厅管弦乐团">
+            </div>
+            <div class="artist-item-name">阿姆斯特丹皇家音乐厅管弦乐团</div>
+          </div>
+          
+          <div class="artist-item" onclick="createParticleEffect(event)">
+            <div class="artist-avatar">
+              <img src="https://images.unsplash.com/photo-1550686041-366ad85a1355?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" alt="芝加哥交响乐团">
+            </div>
+            <div class="artist-item-name">芝加哥交响乐团</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 引入播放条 -->
+  <div id="player-bar-container">
+    <!-- 内嵌播放条 -->
+    <div class="player-bar light" id="player-bar" style="height: 60px; width: 100%; position: fixed; z-index: 40; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background-color: rgba(255, 255, 255, 0.7); color: #212121; box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.05); transform: translateY(0); bottom: 83px; left: 0;">
+      <div class="swipe-container" id="swipe-container">
+        <div class="flex items-center justify-between h-full px-4">
+          <!-- 专辑封面 -->
+          <div class="album-cover" style="width: 40px; height: 40px; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+            <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?auto=format&fit=crop&w=80&h=80&q=80" alt="专辑封面" class="w-full h-full object-cover">
+          </div>
+          
+          <!-- 歌曲信息 -->
+          <div class="flex-1 ml-3 overflow-hidden">
+            <div class="song-title" id="song-title" style="font-family: 'New York', serif; font-style: italic; font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">莫扎特：D大调第三十八交响曲</div>
+            <div class="artist-name" id="artist-name" style="font-family: 'SF Pro Text', sans-serif; font-size: 12px; color: #757575; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">维也纳爱乐乐团 / 伦纳德·伯恩斯坦</div>
+          </div>
+          
+          <!-- 控制按钮 -->
+          <div class="flex items-center space-x-2">
+            <div class="control-button" onclick="togglePlay()" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s ease;">
+              <i class="fas fa-play" id="play-icon"></i>
+            </div>
+            <div class="control-button" onclick="nextTrack()" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s ease;">
+              <i class="fas fa-forward"></i>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 进度条 -->
+        <div class="progress-bar" id="progress-bar" style="position: absolute; bottom: 0; left: 0; height: 2px; background-color: #8B0000; width: 40%; transition: width 0.1s linear;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 引入导航栏 -->
+  <div id="navigation-bar-container">
+    <!-- 内联导航栏 -->
+    <nav class="navigation-bar light" id="navigation-bar" style="height: 83px; width: 100%; position: fixed; bottom: 0; left: 0; z-index: 50; display: flex; justify-content: space-around; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); background-color: rgba(255, 255, 255, 0.8); border-top: 1px solid rgba(0, 0, 0, 0.05);">
+      <!-- 粒子效果容器 -->
+      <div class="particles-container" id="particles-container"></div>
+      
+      <!-- 首页 -->
+      <div class="nav-item" data-name="home" onclick="setActiveTab(this)" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; padding-top: 8px; color: #757575; transition: all 0.2s ease;">
+        <i class="nav-icon fa-solid fa-home" style="font-size: 24px; margin-bottom: 2px;"></i>
+        <span class="nav-text" style="font-size: 10px; font-weight: 500;">首页</span>
+      </div>
+      
+      <!-- 发现 -->
+      <div class="nav-item active" data-name="discover" onclick="setActiveTab(this)" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; padding-top: 8px; color: #8B0000; transition: all 0.2s ease;">
+        <i class="nav-icon fa-solid fa-compass" style="font-size: 24px; margin-bottom: 2px;"></i>
+        <span class="nav-text" style="font-size: 10px; font-weight: 500;">发现</span>
+      </div>
+      
+      <!-- 搜索 -->
+      <div class="nav-item" data-name="search" onclick="setActiveTab(this)" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; padding-top: 8px; color: #757575; transition: all 0.2s ease;">
+        <i class="nav-icon fa-solid fa-search" style="font-size: 24px; margin-bottom: 2px;"></i>
+        <span class="nav-text" style="font-size: 10px; font-weight: 500;">搜索</span>
+      </div>
+      
+      <!-- 我的 -->
+      <div class="nav-item" data-name="profile" onclick="setActiveTab(this)" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; padding-top: 8px; color: #757575; transition: all 0.2s ease;">
+        <i class="nav-icon fa-solid fa-user" style="font-size: 24px; margin-bottom: 2px;"></i>
+        <span class="nav-text" style="font-size: 10px; font-weight: 500;">我的</span>
+      </div>
+      
+      <!-- 底部手势条 -->
+      <div class="home-indicator" style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; background-color: #000; border-radius: 100px; opacity: 0.5;"></div>
+    </nav>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 更新状态栏时间
+      updateStatusTime();
+      setInterval(updateStatusTime, 60000); // 每分钟更新一次时间
+      
+      // 初始化主题
+      initTheme();
+    });
+
+    // 主题初始化和事件监听
+    function initTheme() {
+      // 检查是否为iframe嵌入
+      const isIframe = window.parent !== window;
+      let themeSet = false;
+      
+      // 优先使用父页面设置的主题
+      if (isIframe) {
+        try {
+          const parentIsDark = window.parent.document.documentElement.classList.contains('dark');
+          // 使用父页面的主题设置
+          toggleTheme(parentIsDark);
+          console.log('从父页面继承主题设置:', parentIsDark ? '深色' : '浅色');
+          themeSet = true;
+        } catch (e) {
+          console.log('无法访问父页面主题设置:', e);
+        }
+      }
+      
+      // 其次使用本地存储中的主题设置
+      if (!themeSet && !isIframe) {
+        const savedTheme = localStorage.getItem('yayun-theme');
+        if (savedTheme) {
+          toggleTheme(savedTheme === 'dark');
+          console.log('使用保存的主题设置:', savedTheme);
+          themeSet = true;
+        }
+      }
+      
+      // 最后才使用系统主题偏好
+      if (!themeSet) {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        toggleTheme(prefersDark);
+        console.log('使用系统主题偏好:', prefersDark ? '深色' : '浅色');
+      }
+      
+      // 监听系统主题变化 - 仅当作为独立页面打开时才响应系统变化
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleSystemThemeChange = e => {
+        // 仅当作为独立页面打开时才响应系统变化
+        if (window.parent === window) {
+          toggleTheme(e.matches);
+          console.log('系统主题变化为:', e.matches ? '深色' : '浅色');
+        }
+      };
+      
+      // 兼容不同浏览器的事件监听方式
+      if (mediaQuery.addEventListener) {
+        mediaQuery.addEventListener('change', handleSystemThemeChange);
+      } else if (mediaQuery.addListener) {
+        // 旧版API，用于兼容Safari
+        mediaQuery.addListener(handleSystemThemeChange);
+      }
+      
+      // 监听来自父页面的主题切换消息
+      window.addEventListener('message', function(event) {
+        // 安全检查：确保消息来源可信
+        if (event.data && event.data.type === 'themeChange') {
+          console.log('艺术家页接收到主题切换消息:', event.data.isDark);
+          toggleTheme(event.data.isDark);
+        }
+      });
+    }
+
+    // 更新状态栏时间
+    function updateStatusTime() {
+      const now = new Date();
+      let hours = now.getHours();
+      let minutes = now.getMinutes();
+      
+      // 格式化时间
+      hours = hours < 10 ? '0' + hours : hours;
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      
+      const timeElement = document.getElementById('status-time');
+      if (timeElement) {
+        timeElement.textContent = `${hours}:${minutes}`;
+      }
+    }
+
+    // 卡片点击粒子效果
+    function createParticleEffect(event) {
+      const x = event.clientX;
+      const y = event.clientY;
+      
+      // 创建粒子容器
+      let container = document.querySelector('.particles-container-temp');
+      if (!container) {
+        container = document.createElement('div');
+        container.classList.add('particles-container-temp');
+        container.style.position = 'fixed';
+        container.style.top = '0';
+        container.style.left = '0';
+        container.style.width = '100%';
+        container.style.height = '100%';
+        container.style.pointerEvents = 'none';
+        container.style.zIndex = '1000';
+        document.body.appendChild(container);
+      }
+      
+      // 创建5-8个粒子
+      const particleCount = Math.floor(Math.random() * 4) + 5;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        // 随机大小 (3-6px)
+        const size = Math.random() * 3 + 3;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // 随机位置 (围绕点击位置)
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * 40 + 10;
+        const particleX = x + Math.cos(angle) * distance;
+        const particleY = y + Math.sin(angle) * distance;
+        
+        particle.style.left = `${particleX}px`;
+        particle.style.top = `${particleY}px`;
+        
+        // 添加到容器
+        container.appendChild(particle);
+        
+        // 动画结束后移除
+        setTimeout(() => {
+          particle.remove();
+        }, 600);
+      }
+      
+      // 一段时间后移除容器
+      setTimeout(() => {
+        if (container && container.childElementCount === 0) {
+          container.remove();
+        }
+      }, 1000);
+    }
+
+    // 设置导航激活状态
+    function setActiveTab(element) {
+      if (!element) return;
+      
+      // 移除所有标签的激活状态
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        item.style.color = document.body.classList.contains('dark') ? '#AAAAAA' : '#757575';
+      });
+      
+      // 为当前标签添加激活状态
+      element.classList.add('active');
+      element.style.color = '#8B0000'; // 品牌红色
+      
+      // 创建点击粒子效果
+      createParticles(element);
+    }
+
+    // 播放控制函数
+    function togglePlay() {
+      const playIcon = document.getElementById('play-icon');
+      if (playIcon.classList.contains('fa-play')) {
+        playIcon.classList.remove('fa-play');
+        playIcon.classList.add('fa-pause');
+        // 启动进度条动画
+        startProgressAnimation();
+      } else {
+        playIcon.classList.remove('fa-pause');
+        playIcon.classList.add('fa-play');
+        // 停止进度条动画
+        stopProgressAnimation();
+      }
+    }
+    
+    // 切换到下一曲
+    function nextTrack() {
+      // 简单模拟切换效果
+      const songTitle = document.getElementById('song-title');
+      const artistName = document.getElementById('artist-name');
+      const progressBar = document.getElementById('progress-bar');
+      
+      // 切换歌曲信息
+      const songs = [
+        {
+          title: "莫扎特：D大调第三十八交响曲",
+          artist: "维也纳爱乐乐团 / 伦纳德·伯恩斯坦"
+        },
+        {
+          title: "贝多芬：第五交响曲",
+          artist: "维也纳爱乐乐团 / 卡洛斯·克莱贝尔"
+        },
+        {
+          title: "布鲁克纳：第七交响曲",
+          artist: "维也纳爱乐乐团 / 赫伯特·冯·卡拉扬"
+        }
+      ];
+      
+      const currentTitle = songTitle.innerText;
+      let nextIndex = 0;
+      
+      for (let i = 0; i < songs.length; i++) {
+        if (songs[i].title === currentTitle) {
+          nextIndex = (i + 1) % songs.length;
+          break;
+        }
+      }
+      
+      // 更新信息
+      songTitle.innerText = songs[nextIndex].title;
+      artistName.innerText = songs[nextIndex].artist;
+      progressBar.style.width = "0%";
+      
+      // 重置进度条
+      if (document.getElementById('play-icon') && document.getElementById('play-icon').classList.contains('fa-pause')) {
+        startProgressAnimation();
+      }
+    }
+    
+    // 进度条动画
+    let progressInterval;
+    function startProgressAnimation() {
+      clearInterval(progressInterval);
+      let progress = parseFloat(document.getElementById('progress-bar').style.width) || 0;
+      
+      progressInterval = setInterval(() => {
+        progress += 0.1;
+        if (progress >= 100) {
+          progress = 0;
+          nextTrack();
+        }
+        document.getElementById('progress-bar').style.width = `${progress}%`;
+      }, 100);
+    }
+    
+    function stopProgressAnimation() {
+      clearInterval(progressInterval);
+    }
+
+    // 切换浅色/深色模式 - 在window对象上暴露此函数以便iframe访问
+    window.toggleTheme = function(isDark) {
+      const body = document.body;
+      const playerBar = document.getElementById('player-bar');
+      const artistName = document.getElementById('artist-name');
+      const statusBar = document.getElementById('status-bar');
+      const navigationBar = document.getElementById('navigation-bar');
+      const homeIndicator = document.querySelector('.home-indicator');
+      
+      // 如果提供了isDark参数，则直接设置指定模式
+      if (isDark !== undefined) {
+        const currentIsDark = body.classList.contains('dark');
+        if (isDark === currentIsDark) return isDark; // 已经是指定模式，不做任何操作
+        
+        if (isDark) {
+          body.classList.add('dark');
+        } else {
+          body.classList.remove('dark');
+        }
+      } else {
+        // 否则切换当前模式
+        body.classList.toggle('dark');
+        isDark = body.classList.contains('dark');
+      }
+      
+      // 更新各元素主题
+      if (statusBar) {
+        if (isDark) {
+          statusBar.classList.remove('light');
+          statusBar.classList.add('dark');
+          statusBar.style.backgroundColor = 'rgba(30, 30, 30, 0.8)';
+          statusBar.style.color = '#FFFFFF';
+        } else {
+          statusBar.classList.remove('dark');
+          statusBar.classList.add('light');
+          statusBar.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+          statusBar.style.color = '#000000';
+        }
+      }
+      
+      if (navigationBar) {
+        if (isDark) {
+          navigationBar.classList.remove('light');
+          navigationBar.classList.add('dark');
+          navigationBar.style.backgroundColor = 'rgba(30, 30, 30, 0.8)';
+          navigationBar.style.borderTopColor = 'rgba(255, 255, 255, 0.05)';
+          
+          // 更新导航图标颜色
+          const navItems = navigationBar.querySelectorAll('.nav-item:not(.active)');
+          navItems.forEach(item => {
+            item.style.color = '#AAAAAA';
+          });
+          
+          // 保持活动项颜色
+          const activeItem = navigationBar.querySelector('.nav-item.active');
+          if (activeItem) {
+            activeItem.style.color = '#8B0000';
+          }
+        } else {
+          navigationBar.classList.remove('dark');
+          navigationBar.classList.add('light');
+          navigationBar.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+          navigationBar.style.borderTopColor = 'rgba(0, 0, 0, 0.05)';
+          
+          // 更新导航图标颜色
+          const navItems = navigationBar.querySelectorAll('.nav-item:not(.active)');
+          navItems.forEach(item => {
+            item.style.color = '#757575';
+          });
+          
+          // 保持活动项颜色
+          const activeItem = navigationBar.querySelector('.nav-item.active');
+          if (activeItem) {
+            activeItem.style.color = '#8B0000';
+          }
+        }
+      }
+      
+      if (playerBar) {
+        if (isDark) {
+          playerBar.classList.remove('light');
+          playerBar.classList.add('dark');
+          playerBar.style.backgroundColor = 'rgba(30, 30, 30, 0.7)';
+          playerBar.style.color = '#FFFFFF';
+          if (artistName) artistName.style.color = '#AAAAAA';
+        } else {
+          playerBar.classList.remove('dark');
+          playerBar.classList.add('light');
+          playerBar.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+          playerBar.style.color = '#212121';
+          if (artistName) artistName.style.color = '#757575';
+        }
+      }
+      
+      // 更新底部手势条
+      if (homeIndicator) {
+        homeIndicator.style.backgroundColor = isDark ? '#FFFFFF' : '#000000';
+      }
+      
+      // 保存主题设置到本地存储
+      if (window.parent === window) { // 只有在独立打开时才保存
+        localStorage.setItem('yayun-theme', isDark ? 'dark' : 'light');
+      }
+      
+      return isDark; // 返回当前主题状态
+    }
+
+    // 粒子动画效果
+    function createParticles(element) {
+      const container = document.getElementById('particles-container');
+      if (!container) return;
+      
+      const rect = element.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      
+      // 创建8-12个粒子
+      const particleCount = Math.floor(Math.random() * 5) + 8;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        // 随机大小 (3-6px)
+        const size = Math.random() * 3 + 3;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // 随机位置 (围绕点击中心)
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * 30 + 10;
+        const x = centerX + Math.cos(angle) * distance;
+        const y = centerY + Math.sin(angle) * distance;
+        
+        particle.style.left = `${x}px`;
+        particle.style.top = `${y}px`;
+        
+        // 添加到容器
+        container.appendChild(particle);
+        
+        // 动画结束后移除
+        setTimeout(() => {
+          particle.remove();
+        }, 600);
+      }
+    }
+  </script>
+</body>
+</html> 

@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的 - 雅韵</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600&family=SF+Pro+Text:wght@400;500&family=New+York:wght@400;500&display=swap');
+    
+    :root {
+      --brand-color: #8B0000;
+      --gold-color: #D4AF37;
+      --text-color: #333333;
+      --text-color-subtle: #757575;
+      --border-color: #E5E5E5;
+      --background-color: #FFFFFF;
+      --background-color-subtle: #F5F5F5;
+      --background-dark: #1E1E1E;
+      --text-dark: #FFFFFF;
+      --text-dark-subtle: #AAAAAA;
+      --border-dark: #333333;
+    }
+
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      width: 375px;
+      height: 812px;
+      overflow: auto;
+    }
+
+    /* 深色模式 */
+    body.dark {
+      background-color: var(--background-dark);
+      color: var(--text-dark);
+    }
+
+    .content-container {
+      padding: 0 0 83px 0; /* 底部导航栏高度 */
+    }
+
+    /* 页面标题 */
+    .page-title {
+      font-family: 'New York', serif;
+      font-weight: 500;
+      letter-spacing: -0.5px;
+    }
+
+    /* 功能卡片 */
+    .feature-card {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      background-color: var(--background-color);
+    }
+
+    body.dark .feature-card {
+      background-color: var(--background-dark);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .feature-card:active {
+      transform: scale(0.98);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    /* 用户信息卡片 */
+    .user-info-card {
+      border-radius: 16px;
+      overflow: hidden;
+      background-color: var(--background-color);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    body.dark .user-info-card {
+      background-color: var(--background-dark);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .user-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px solid var(--brand-color);
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(139, 0, 0, 0.3);
+    }
+
+    /* 功能项 */
+    .feature-item {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+      transition: background-color 0.2s ease;
+    }
+
+    body.dark .feature-item {
+      border-bottom: 1px solid var(--border-dark);
+    }
+
+    .feature-item:last-child {
+      border-bottom: none;
+    }
+
+    .feature-item:active {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    body.dark .feature-item:active {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .feature-icon {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      margin-right: 16px;
+    }
+
+    .count-badge {
+      background-color: var(--brand-color);
+      color: white;
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    /* 粒子动画效果 */
+    @keyframes particleAnimation {
+      0% {
+        transform: scale(0);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 0;
+      }
+    }
+
+    .particle {
+      position: absolute;
+      background-color: var(--brand-color);
+      border-radius: 50%;
+      opacity: 0.6;
+      transform: scale(0);
+      animation: particleAnimation 0.6s ease-out forwards;
+    }
+
+    /* 自定义滚动条 */
+    ::-webkit-scrollbar {
+      width: 0;
+      background: transparent;
+    }
+  </style>
+</head>
+<body>
+  <!-- 引入状态栏 -->
+  <div id="status-bar-container">
+    <!-- 内联状态栏 -->
+    <div class="status-bar flex items-center justify-between px-5 light" id="status-bar" style="height: 44px; width: 100%; position: fixed; top: 0; left: 0; z-index: 50; background-color: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+      <!-- 左侧时间 -->
+      <div class="time text-sm font-semibold" id="status-time">9:41</div>
+      
+      <!-- 中间灵动岛区域 -->
+      <div class="dynamic-island w-28 h-8 rounded-full bg-black absolute left-1/2 transform -translate-x-1/2 top-0"></div>
+      
+      <!-- 右侧状态图标 -->
+      <div class="status-icons flex items-center space-x-1.5">
+        <!-- 信号强度 -->
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M1 20h22v2H1v-2zm0-2h22v-2H1v2zm0-4h22v-2H1v2zm0-4h22V8H1v2zm0-6v2h22V4H1z"/>
+        </svg>
+        
+        <!-- WiFi -->
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 6C8.62 6 5.5 7.12 3 9L1.2 6.6C4.21 4.34 7.95 3 12 3s7.79 1.34 10.8 3.6L21 9c-2.5-1.88-5.62-3-9-3zm0 6c-1.94 0-3.75.5-5.33 1.33L4.8 11.4C6.87 10.23 9.33 9.5 12 9.5s5.13.73 7.2 1.9l-1.87 1.93C15.75 12.5 13.94 12 12 12zm0 6c-.89 0-1.74-.2-2.5-.55l-2.43-2.48c1.46-.64 3.08-1-4.93-1s3.47.36 4.93 1l-2.43 2.48c-.76.35-1.61.55-2.5.55z"/>
+        </svg>
+        
+        <!-- 电池 -->
+        <div class="battery flex items-center">
+          <svg class="w-6 h-4" viewBox="0 0 25 12" fill="none" stroke="currentColor">
+            <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke-width="1"/>
+            <rect x="2" y="2" width="16" height="8" fill="currentColor"/>
+            <rect x="23" y="4" width="2" height="4" fill="currentColor"/>
+          </svg>
+          <span class="text-xs ml-0.5">80%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-container mt-16">
+    <!-- 页面标题 -->
+    <div class="px-5 mb-6">
+      <h1 class="page-title text-3xl">我的</h1>
+    </div>
+
+    <!-- 用户信息卡片 -->
+    <div class="px-5 mb-8">
+      <div class="user-info-card p-5" onclick="createParticleEffect(event)">
+        <div class="flex items-center">
+          <div class="user-avatar">
+            <img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-1.2.1&auto=format&fit=crop&w=160&q=80" alt="用户头像" class="w-full h-full object-cover">
+          </div>
+          <div class="ml-4 flex-1">
+            <h2 class="text-xl font-semibold">音乐爱好者</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">普通会员</p>
+          </div>
+          <div class="flex items-center">
+            <button class="px-4 py-1.5 bg-red-800 text-white text-sm rounded-full">
+              编辑资料
+            </button>
+            <i class="fas fa-chevron-right ml-3 text-gray-400 text-xs"></i>
+          </div>
+        </div>
+        <div class="flex justify-between mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div class="text-center">
+            <div class="text-lg font-semibold">0</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">关注</div>
+          </div>
+          <div class="text-center">
+            <div class="text-lg font-semibold">0</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">粉丝</div>
+          </div>
+          <div class="text-center">
+            <div class="text-lg font-semibold">5</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">收藏</div>
+          </div>
+          <div class="text-center">
+            <div class="text-lg font-semibold">13</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">歌单</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 会员专区 -->
+    <div class="px-5 mb-8">
+      <div class="feature-card" onclick="createParticleEffect(event)">
+        <div class="bg-gradient-to-r from-red-900 to-yellow-700 p-4 text-white flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-semibold">高级会员专享</h3>
+            <p class="text-sm opacity-90 mt-1">享受24bit/192kHz 无损音质</p>
+          </div>
+          <button class="px-4 py-1.5 bg-yellow-600 bg-opacity-80 rounded-full text-sm">
+            立即开通
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 我的音乐 -->
+    <div class="px-5 mb-8">
+      <h2 class="text-xl font-semibold mb-4">我的音乐</h2>
+      <div class="feature-card">
+        <div class="feature-item" onclick="createParticleEffect(event)">
+          <div class="feature-icon bg-red-50 dark:bg-red-900 dark:bg-opacity-20">
+            <i class="fas fa-heart text-red-700 dark:text-red-400"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-medium">我喜欢的音乐</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">28首</div>
+          </div>
+          <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+        </div>
+        
+        <div class="feature-item" onclick="createParticleEffect(event)">
+          <div class="feature-icon bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20">
+            <i class="fas fa-download text-blue-700 dark:text-blue-400"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-medium">本地/下载</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">12首</div>
+          </div>
+          <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+        </div>
+        
+        <div class="feature-item" onclick="createParticleEffect(event)">
+          <div class="feature-icon bg-purple-50 dark:bg-purple-900 dark:bg-opacity-20">
+            <i class="fas fa-history text-purple-700 dark:text-purple-400"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-medium">最近播放</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">36首</div>
+          </div>
+          <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- 我的收藏 -->
+    <div class="px-5 mb-8">
+      <h2 class="text-xl font-semibold mb-4">我的收藏</h2>
+      <div class="feature-card">
+        <div class="feature-item" onclick="createParticleEffect(event)">
+          <div class="feature-icon bg-green-50 dark:bg-green-900 dark:bg-opacity-20">
+            <i class="fas fa-compact-disc text-green-700 dark:text-green-400"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-medium">收藏的专辑</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">3张</div>
+          </div>
+          <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+        </div>
+        
+        <div class="feature-item" onclick="createParticleEffect(event)">
+          <div class="feature-icon bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-20">
+            <i class="fas fa-list-ul text-yellow-700 dark:text-yellow-400"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-medium">收藏的歌单</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">2个</div>
+          </div>
+          <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+        </div>
+        
+        <div class="feature-item" onclick="createParticleEffect(event)">
+          <div class="feature-icon bg-indigo-50 dark:bg-indigo-900 dark:bg-opacity-20">
+            <i class="fas fa-user-alt text-indigo-700 dark:text-indigo-400"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-medium">收藏的艺术家</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">8位</div>
+          </div>
+          <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- 其他功能区 -->
+    <div class="px-5 mb-8">
+      <div class="feature-card">
+        <div class="feature-item" onclick="createParticleEffect(event)">
+          <div class="feature-icon bg-gray-50 dark:bg-gray-800">
+            <i class="fas fa-cog text-gray-700 dark:text-gray-400"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-medium">设置</div>
+          </div>
+          <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+        </div>
+        
+        <div class="feature-item" onclick="createParticleEffect(event)">
+          <div class="feature-icon bg-gray-50 dark:bg-gray-800">
+            <i class="fas fa-moon text-gray-700 dark:text-gray-400"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-medium">深色模式</div>
+          </div>
+          <div class="w-12 h-6 bg-gray-200 dark:bg-gray-700 rounded-full p-1 flex items-center cursor-pointer" id="theme-switch">
+            <div class="w-4 h-4 bg-white rounded-full transform transition-transform duration-300" id="theme-toggle"></div>
+          </div>
+        </div>
+        
+        <div class="feature-item" onclick="createParticleEffect(event)">
+          <div class="feature-icon bg-gray-50 dark:bg-gray-800">
+            <i class="fas fa-headphones-alt text-gray-700 dark:text-gray-400"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-medium">音质与下载</div>
+          </div>
+          <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+        </div>
+        
+        <div class="feature-item" onclick="createParticleEffect(event)">
+          <div class="feature-icon bg-gray-50 dark:bg-gray-800">
+            <i class="fas fa-question-circle text-gray-700 dark:text-gray-400"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-medium">帮助与反馈</div>
+          </div>
+          <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+        </div>
+        
+        <div class="feature-item" onclick="createParticleEffect(event)">
+          <div class="feature-icon bg-gray-50 dark:bg-gray-800">
+            <i class="fas fa-info-circle text-gray-700 dark:text-gray-400"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-medium">关于雅韵</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">当前版本: 1.0.0</div>
+          </div>
+          <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 引入播放条 -->
+  <div id="player-bar-container">
+    <!-- 内嵌播放条 -->
+    <div class="player-bar light" id="player-bar" style="height: 60px; width: 100%; position: fixed; z-index: 40; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background-color: rgba(255, 255, 255, 0.7); color: #212121; box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.05); transform: translateY(0); bottom: 83px; left: 0;">
+      <div class="swipe-container" id="swipe-container">
+        <div class="flex items-center justify-between h-full px-4">
+          <!-- 专辑封面 -->
+          <div class="album-cover" style="width: 40px; height: 40px; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+            <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?auto=format&fit=crop&w=80&h=80&q=80" alt="专辑封面" class="w-full h-full object-cover">
+          </div>
+          
+          <!-- 歌曲信息 -->
+          <div class="flex-1 ml-3 overflow-hidden">
+            <div class="song-title" id="song-title" style="font-family: 'New York', serif; font-style: italic; font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">莫扎特：D大调第三十八交响曲</div>
+            <div class="artist-name" id="artist-name" style="font-family: 'SF Pro Text', sans-serif; font-size: 12px; color: #757575; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">维也纳爱乐乐团 / 伦纳德·伯恩斯坦</div>
+          </div>
+          
+          <!-- 控制按钮 -->
+          <div class="flex items-center space-x-2">
+            <div class="control-button" onclick="togglePlay()" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s ease;">
+              <i class="fas fa-play" id="play-icon"></i>
+            </div>
+            <div class="control-button" onclick="nextTrack()" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s ease;">
+              <i class="fas fa-forward"></i>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 进度条 -->
+        <div class="progress-bar" id="progress-bar" style="position: absolute; bottom: 0; left: 0; height: 2px; background-color: #8B0000; width: 40%; transition: width 0.1s linear;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 引入导航栏 -->
+  <div id="navigation-bar-container">
+    <!-- 内联导航栏 -->
+    <nav class="navigation-bar light" id="navigation-bar" style="height: 83px; width: 100%; position: fixed; bottom: 0; left: 0; z-index: 50; display: flex; justify-content: space-around; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); background-color: rgba(255, 255, 255, 0.8); border-top: 1px solid rgba(0, 0, 0, 0.05);">
+      <!-- 粒子效果容器 -->
+      <div class="particles-container" id="particles-container"></div>
+      
+      <!-- 首页 -->
+      <div class="nav-item" data-name="home" onclick="setActiveTab(this)" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; padding-top: 8px; color: #757575; transition: all 0.2s ease;">
+        <i class="nav-icon fa-solid fa-home" style="font-size: 24px; margin-bottom: 2px;"></i>
+        <span class="nav-text" style="font-size: 10px; font-weight: 500;">首页</span>
+      </div>
+      
+      <!-- 发现 -->
+      <div class="nav-item" data-name="discover" onclick="setActiveTab(this)" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; padding-top: 8px; color: #757575; transition: all 0.2s ease;">
+        <i class="nav-icon fa-solid fa-compass" style="font-size: 24px; margin-bottom: 2px;"></i>
+        <span class="nav-text" style="font-size: 10px; font-weight: 500;">发现</span>
+      </div>
+      
+      <!-- 搜索 -->
+      <div class="nav-item" data-name="search" onclick="setActiveTab(this)" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; padding-top: 8px; color: #757575; transition: all 0.2s ease;">
+        <i class="nav-icon fa-solid fa-search" style="font-size: 24px; margin-bottom: 2px;"></i>
+        <span class="nav-text" style="font-size: 10px; font-weight: 500;">搜索</span>
+      </div>
+      
+      <!-- 我的 -->
+      <div class="nav-item active" data-name="profile" onclick="setActiveTab(this)" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; padding-top: 8px; color: #8B0000; transition: all 0.2s ease;">
+        <i class="nav-icon fa-solid fa-user" style="font-size: 24px; margin-bottom: 2px;"></i>
+        <span class="nav-text" style="font-size: 10px; font-weight: 500;">我的</span>
+      </div>
+      
+      <!-- 底部手势条 -->
+      <div class="home-indicator" style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; background-color: #000; border-radius: 100px; opacity: 0.5;"></div>
+    </nav>
+  </div>
+
+  <script>
+    // 主题切换开关
+    const themeSwitch = document.getElementById('theme-switch');
+    const themeToggle = document.getElementById('theme-toggle');
+
+    // 初始化主题开关状态
+    function updateThemeSwitchUI(isDark) {
+      if (isDark) {
+        themeToggle.classList.add('translate-x-6');
+        themeSwitch.classList.add('bg-red-800');
+        themeSwitch.classList.remove('bg-gray-200');
+      } else {
+        themeToggle.classList.remove('translate-x-6');
+        themeSwitch.classList.remove('bg-red-800');
+        themeSwitch.classList.add('bg-gray-200');
+      }
+    }
+
+    // 监听主题切换开关点击
+    themeSwitch.addEventListener('click', function(event) {
+      event.stopPropagation(); // 阻止冒泡，避免触发父元素的点击事件
+      const isDark = toggleTheme(); // 切换主题并获取当前状态
+      updateThemeSwitchUI(isDark);
+      createParticleEffect(event);
+    });
+
+    // 设置导航激活状态
+    function setActiveTab(element) {
+      if (!element) return;
+      
+      // 移除所有标签的激活状态
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        item.style.color = document.body.classList.contains('dark') ? '#AAAAAA' : '#757575';
+      });
+      
+      // 为当前标签添加激活状态
+      element.classList.add('active');
+      element.style.color = '#8B0000'; // 品牌红色
+      
+      // 创建点击粒子效果
+      createParticles(element);
+    }
+
+    // 粒子动画效果
+    function createParticles(element) {
+      const container = document.getElementById('particles-container');
+      if (!container) return;
+      
+      const rect = element.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      
+      // 创建8-12个粒子
+      const particleCount = Math.floor(Math.random() * 5) + 8;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        // 随机大小 (3-6px)
+        const size = Math.random() * 3 + 3;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // 随机位置 (围绕点击中心)
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * 30 + 10;
+        const x = centerX + Math.cos(angle) * distance;
+        const y = centerY + Math.sin(angle) * distance;
+        
+        particle.style.left = `${x}px`;
+        particle.style.top = `${y}px`;
+        
+        // 添加到容器
+        container.appendChild(particle);
+        
+        // 动画结束后移除
+        setTimeout(() => {
+          particle.remove();
+        }, 600);
+      }
+    }
+
+    // 卡片点击粒子效果
+    function createParticleEffect(event) {
+      const x = event.clientX;
+      const y = event.clientY;
+      
+      // 创建粒子容器
+      let container = document.querySelector('.particles-container-temp');
+      if (!container) {
+        container = document.createElement('div');
+        container.classList.add('particles-container-temp');
+        container.style.position = 'fixed';
+        container.style.top = '0';
+        container.style.left = '0';
+        container.style.width = '100%';
+        container.style.height = '100%';
+        container.style.pointerEvents = 'none';
+        container.style.zIndex = '1000';
+        document.body.appendChild(container);
+      }
+      
+      // 创建5-8个粒子
+      const particleCount = Math.floor(Math.random() * 4) + 5;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        // 随机大小 (3-6px)
+        const size = Math.random() * 3 + 3;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // 随机位置 (围绕点击位置)
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * 40 + 10;
+        const particleX = x + Math.cos(angle) * distance;
+        const particleY = y + Math.sin(angle) * distance;
+        
+        particle.style.left = `${particleX}px`;
+        particle.style.top = `${particleY}px`;
+        
+        // 添加到容器
+        container.appendChild(particle);
+        
+        // 动画结束后移除
+        setTimeout(() => {
+          particle.remove();
+        }, 600);
+      }
+      
+      // 一段时间后移除容器
+      setTimeout(() => {
+        if (container && container.childElementCount === 0) {
+          container.remove();
+        }
+      }, 1000);
+    }
+
+    // 切换浅色/深色模式 - 在window对象上暴露函数以便iframe访问
+    window.toggleTheme = function(isDark) {
+      const body = document.body;
+      const playerBar = document.getElementById('player-bar');
+      const artistName = document.getElementById('artist-name');
+      const statusBar = document.getElementById('status-bar');
+      const navigationBar = document.getElementById('navigation-bar');
+      const homeIndicator = document.querySelector('.home-indicator');
+      
+      // 如果提供了isDark参数，则直接设置指定模式
+      if (isDark !== undefined) {
+        const currentIsDark = body.classList.contains('dark');
+        if (isDark === currentIsDark) return isDark; // 已经是指定模式，不做任何操作
+        
+        if (isDark) {
+          body.classList.add('dark');
+        } else {
+          body.classList.remove('dark');
+        }
+      } else {
+        // 否则切换当前模式
+        body.classList.toggle('dark');
+        isDark = body.classList.contains('dark');
+      }
+      
+      // 更新主题开关UI
+      if (themeToggle) {
+        updateThemeSwitchUI(isDark);
+      }
+      
+      // 更新各元素主题
+      if (statusBar) {
+        if (isDark) {
+          statusBar.classList.remove('light');
+          statusBar.classList.add('dark');
+          statusBar.style.backgroundColor = 'rgba(30, 30, 30, 0.8)';
+          statusBar.style.color = '#FFFFFF';
+        } else {
+          statusBar.classList.remove('dark');
+          statusBar.classList.add('light');
+          statusBar.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+          statusBar.style.color = '#000000';
+        }
+      }
+      
+      if (navigationBar) {
+        if (isDark) {
+          navigationBar.classList.remove('light');
+          navigationBar.classList.add('dark');
+          navigationBar.style.backgroundColor = 'rgba(30, 30, 30, 0.8)';
+          navigationBar.style.borderTopColor = 'rgba(255, 255, 255, 0.05)';
+          
+          // 更新导航图标颜色
+          const navItems = navigationBar.querySelectorAll('.nav-item:not(.active)');
+          navItems.forEach(item => {
+            item.style.color = '#AAAAAA';
+          });
+          
+          // 保持活动项颜色
+          const activeItem = navigationBar.querySelector('.nav-item.active');
+          if (activeItem) {
+            activeItem.style.color = '#8B0000';
+          }
+        } else {
+          navigationBar.classList.remove('dark');
+          navigationBar.classList.add('light');
+          navigationBar.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+          navigationBar.style.borderTopColor = 'rgba(0, 0, 0, 0.05)';
+          
+          // 更新导航图标颜色
+          const navItems = navigationBar.querySelectorAll('.nav-item:not(.active)');
+          navItems.forEach(item => {
+            item.style.color = '#757575';
+          });
+          
+          // 保持活动项颜色
+          const activeItem = navigationBar.querySelector('.nav-item.active');
+          if (activeItem) {
+            activeItem.style.color = '#8B0000';
+          }
+        }
+      }
+      
+      if (playerBar) {
+        if (isDark) {
+          playerBar.classList.remove('light');
+          playerBar.classList.add('dark');
+          playerBar.style.backgroundColor = 'rgba(30, 30, 30, 0.7)';
+          playerBar.style.color = '#FFFFFF';
+          if (artistName) artistName.style.color = '#AAAAAA';
+        } else {
+          playerBar.classList.remove('dark');
+          playerBar.classList.add('light');
+          playerBar.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+          playerBar.style.color = '#212121';
+          if (artistName) artistName.style.color = '#757575';
+        }
+      }
+      
+      // 更新底部手势条
+      if (homeIndicator) {
+        homeIndicator.style.backgroundColor = isDark ? '#FFFFFF' : '#000000';
+      }
+      
+      // 保存主题设置到本地存储
+      if (window.parent === window) { // 只有在独立打开时才保存
+        localStorage.setItem('yayun-theme', isDark ? 'dark' : 'light');
+      }
+      
+      return isDark; // 返回当前主题状态
+    }
+    
+    // 更新状态栏时间
+    function updateStatusTime() {
+      const now = new Date();
+      let hours = now.getHours();
+      let minutes = now.getMinutes();
+      
+      // 格式化时间
+      hours = hours < 10 ? '0' + hours : hours;
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      
+      const timeElement = document.getElementById('status-time');
+      if (timeElement) {
+        timeElement.textContent = `${hours}:${minutes}`;
+      }
+    }
+    
+    // 初始化时调用，确保组件主题一致
+    document.addEventListener('DOMContentLoaded', function() {
+      // 更新状态栏时间
+      updateStatusTime();
+      setInterval(updateStatusTime, 60000); // 每分钟更新一次时间
+      
+      // 检查是否为iframe嵌入
+      const isIframe = window.parent !== window;
+      let themeSet = false;
+      
+      // 优先使用父页面设置的主题
+      if (isIframe) {
+        try {
+          const parentIsDark = window.parent.document.documentElement.classList.contains('dark');
+          // 使用父页面的主题设置
+          toggleTheme(parentIsDark);
+          console.log('从父页面继承主题设置:', parentIsDark ? '深色' : '浅色');
+          themeSet = true;
+        } catch (e) {
+          console.log('无法访问父页面主题设置:', e);
+        }
+      }
+      
+      // 其次使用本地存储中的主题设置
+      if (!themeSet && !isIframe) {
+        const savedTheme = localStorage.getItem('yayun-theme');
+        if (savedTheme) {
+          toggleTheme(savedTheme === 'dark');
+          console.log('使用保存的主题设置:', savedTheme);
+          themeSet = true;
+        }
+      }
+      
+      // 最后才使用系统主题偏好
+      if (!themeSet) {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        toggleTheme(prefersDark);
+        console.log('使用系统主题偏好:', prefersDark ? '深色' : '浅色');
+      }
+      
+      // 监听系统主题变化 - 仅当作为独立页面打开时才响应系统变化
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleSystemThemeChange = e => {
+        // 仅当作为独立页面打开时才响应系统变化
+        if (window.parent === window) {
+          toggleTheme(e.matches);
+          console.log('系统主题变化为:', e.matches ? '深色' : '浅色');
+        }
+      };
+      
+      // 监听来自父页面的主题切换消息
+      window.addEventListener('message', function(event) {
+        // 安全检查：确保消息来源可信
+        if (event.data && event.data.type === 'themeChange') {
+          console.log('我的页面接收到主题切换消息:', event.data.isDark);
+          toggleTheme(event.data.isDark);
+        }
+      });
+      
+      // 兼容不同浏览器的事件监听方式
+      if (mediaQuery.addEventListener) {
+        mediaQuery.addEventListener('change', handleSystemThemeChange);
+      } else if (mediaQuery.addListener) {
+        // 旧版API，用于兼容Safari
+        mediaQuery.addListener(handleSystemThemeChange);
+      }
+    });
+
+    // 播放控制函数
+    function togglePlay() {
+      const playIcon = document.getElementById('play-icon');
+      if (playIcon.classList.contains('fa-play')) {
+        playIcon.classList.remove('fa-play');
+        playIcon.classList.add('fa-pause');
+        // 启动进度条动画
+        startProgressAnimation();
+      } else {
+        playIcon.classList.remove('fa-pause');
+        playIcon.classList.add('fa-play');
+        // 停止进度条动画
+        stopProgressAnimation();
+      }
+    }
+    
+    // 切换到下一曲
+    function nextTrack() {
+      // 简单模拟切换效果
+      const songTitle = document.getElementById('song-title');
+      const artistName = document.getElementById('artist-name');
+      const progressBar = document.getElementById('progress-bar');
+      
+      // 切换歌曲信息
+      const songs = [
+        {
+          title: "莫扎特：D大调第三十八交响曲",
+          artist: "维也纳爱乐乐团 / 伦纳德·伯恩斯坦"
+        },
+        {
+          title: "贝多芬：第五交响曲",
+          artist: "柏林爱乐乐团 / 西蒙·拉特尔"
+        },
+        {
+          title: "巴赫：勃兰登堡协奏曲",
+          artist: "阿姆斯特丹巴洛克乐团"
+        }
+      ];
+      
+      const currentTitle = songTitle.innerText;
+      let nextIndex = 0;
+      
+      for (let i = 0; i < songs.length; i++) {
+        if (songs[i].title === currentTitle) {
+          nextIndex = (i + 1) % songs.length;
+          break;
+        }
+      }
+      
+      // 更新信息
+      songTitle.innerText = songs[nextIndex].title;
+      artistName.innerText = songs[nextIndex].artist;
+      progressBar.style.width = "0%";
+      
+      // 重置进度条
+      if (playIcon && playIcon.classList.contains('fa-pause')) {
+        startProgressAnimation();
+      }
+    }
+    
+    // 进度条动画
+    let progressInterval;
+    function startProgressAnimation() {
+      clearInterval(progressInterval);
+      let progress = parseFloat(document.getElementById('progress-bar').style.width) || 0;
+      
+      progressInterval = setInterval(() => {
+        progress += 0.1;
+        if (progress >= 100) {
+          progress = 0;
+          nextTrack();
+        }
+        document.getElementById('progress-bar').style.width = `${progress}%`;
+      }, 100);
+    }
+    
+    function stopProgressAnimation() {
+      clearInterval(progressInterval);
+    }
+  </script>
+</body>
+</html> 

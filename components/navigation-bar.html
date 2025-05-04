@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>雅韵-导航栏组件</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600&display=swap');
+    
+    :root {
+      --brand-color: #8B0000;
+      --inactive-color: #757575;
+      --bg-light: rgba(255, 255, 255, 0.8);
+      --bg-dark: rgba(30, 30, 30, 0.8);
+    }
+    
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background-color: #f5f5f5;
+    }
+    
+    .navigation-bar {
+      height: 83px; /* 49px + 34px底部安全区 */
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 50;
+      display: flex;
+      justify-content: space-around;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .navigation-bar.light {
+      background-color: var(--bg-light);
+    }
+    
+    .navigation-bar.dark {
+      background-color: var(--bg-dark);
+    }
+    
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 60px;
+      padding-top: 8px;
+      color: var(--inactive-color);
+      transition: all 0.2s ease;
+    }
+    
+    .nav-item.active {
+      color: var(--brand-color);
+    }
+    
+    .nav-item:active {
+      transform: scale(0.95);
+    }
+    
+    .nav-icon {
+      font-size: 24px;
+      margin-bottom: 2px;
+    }
+    
+    .nav-text {
+      font-size: 10px;
+      font-weight: 500;
+    }
+    
+    .home-indicator {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 5px;
+      background-color: #000;
+      border-radius: 100px;
+    }
+    
+    .dark .home-indicator {
+      background-color: #fff;
+    }
+    
+    /* 粒子动画效果 */
+    .particles-container {
+      position: absolute;
+      pointer-events: none;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    
+    .particle {
+      position: absolute;
+      background-color: var(--brand-color);
+      border-radius: 50%;
+      opacity: 0.6;
+      transform: scale(0);
+      animation: particleAnimation 0.6s ease-out forwards;
+    }
+    
+    @keyframes particleAnimation {
+      0% {
+        transform: scale(0);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="particles-container" id="particles-container"></div>
+  
+  <!-- 导航栏演示区域 -->
+  <div class="flex items-center justify-center h-screen">
+    <h1 class="text-2xl font-bold text-gray-800">雅韵-导航栏组件</h1>
+  </div>
+  
+  <!-- iOS风格底部导航栏 -->
+  <nav class="navigation-bar light" id="navigation-bar">
+    <!-- 首页 -->
+    <div class="nav-item active" data-name="home" onclick="setActiveTab(this)">
+      <i class="nav-icon fa-solid fa-home"></i>
+      <span class="nav-text">首页</span>
+    </div>
+    
+    <!-- 发现 -->
+    <div class="nav-item" data-name="discover" onclick="setActiveTab(this)">
+      <i class="nav-icon fa-solid fa-compass"></i>
+      <span class="nav-text">发现</span>
+    </div>
+    
+    <!-- 搜索 -->
+    <div class="nav-item" data-name="search" onclick="setActiveTab(this)">
+      <i class="nav-icon fa-solid fa-search"></i>
+      <span class="nav-text">搜索</span>
+    </div>
+    
+    <!-- 我的 -->
+    <div class="nav-item" data-name="profile" onclick="setActiveTab(this)">
+      <i class="nav-icon fa-solid fa-user"></i>
+      <span class="nav-text">我的</span>
+    </div>
+    
+    <!-- 底部手势条 -->
+    <div class="home-indicator"></div>
+  </nav>
+
+  <script>
+    // 设置当前激活的标签页
+    function setActiveTab(element) {
+      // 移除所有标签的激活状态
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      
+      // 为当前标签添加激活状态
+      element.classList.add('active');
+      
+      // 创建点击粒子效果
+      createParticles(element);
+    }
+    
+    // 创建粒子动画效果
+    function createParticles(element) {
+      const container = document.getElementById('particles-container');
+      const rect = element.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      
+      // 创建8-12个粒子
+      const particleCount = Math.floor(Math.random() * 5) + 8;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        // 随机大小 (3-6px)
+        const size = Math.random() * 3 + 3;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // 随机位置 (围绕点击中心)
+        const angle = Math.random() * Math.PI * 2;
+        const distance = Math.random() * 30 + 10;
+        const x = centerX + Math.cos(angle) * distance;
+        const y = centerY + Math.sin(angle) * distance;
+        
+        particle.style.left = `${x}px`;
+        particle.style.top = `${y}px`;
+        
+        // 添加到容器
+        container.appendChild(particle);
+        
+        // 动画结束后移除
+        setTimeout(() => {
+          particle.remove();
+        }, 600);
+      }
+    }
+    
+    // 切换浅色/深色模式
+    function toggleTheme(isDark) {
+      const navigationBar = document.getElementById('navigation-bar');
+      
+      if (isDark) {
+        navigationBar.classList.remove('light');
+        navigationBar.classList.add('dark');
+      } else {
+        navigationBar.classList.remove('dark');
+        navigationBar.classList.add('light');
+      }
+    }
+    
+    // 初始化函数
+    function initNavigationBar() {
+      // 检测是否为深色模式
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      toggleTheme(prefersDark);
+      
+      // 监听系统颜色模式变化
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        toggleTheme(e.matches);
+      });
+    }
+    
+    // 初始化导航栏
+    initNavigationBar();
+  </script>
+</body>
+</html> 

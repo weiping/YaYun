@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>雅韵(YaYun) - 高品质经典音乐App</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/index.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600&family=SF+Pro+Text:wght@400;500&family=New+York:wght@400;500&display=swap');
+    
+    :root {
+      --brand-color: #8B0000;
+      --gold-color: #D4AF37;
+      --text-color: #333333;
+      --text-color-subtle: #757575;
+      --bg-color: #F7F7F7;
+      --component-bg: #FFFFFF;
+      --border-color: #E5E5E5;
+      --footer-border: #EEEEEE;
+    }
+    
+    html.dark {
+      --text-color: #FFFFFF;
+      --text-color-subtle: #AAAAAA;
+      --bg-color: #121212;
+      --component-bg: #1E1E1E;
+      --border-color: #333333;
+      --footer-border: #333333;
+    }
+    
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    
+    .component-card {
+      background-color: var(--component-bg);
+      transition: background-color 0.3s ease;
+    }
+    
+    .component-card p {
+      color: var(--text-color-subtle);
+    }
+    
+    .footer {
+      border-top-color: var(--footer-border);
+    }
+    
+    /* 主题切换按钮 */
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background-color: var(--component-bg);
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .theme-toggle:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .theme-toggle.animate .icon {
+      animation: spin 0.5s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+  <!-- 主题切换按钮 -->
+  <div class="theme-toggle" id="themeToggle">
+    <i class="fas fa-moon icon" id="themeIcon"></i>
+  </div>
+
+  <div class="main-container">
+    <!-- 页面标题区域 -->
+    <div class="page-header">
+      <h1 class="page-title">雅韵 (YaYun)</h1>
+      <p class="page-subtitle">高品质经典音乐App设计原型展示</p>
+    </div>
+
+    <!-- 项目简介 -->
+    <div class="project-intro max-w-3xl mx-auto mb-12 text-center">
+      <p class="mb-4">
+        雅韵(YaYun)是一款专注于经典音乐的高品质音乐应用，
+        为古典音乐爱好者提供精致的聆听体验。设计融合现代UI和古典音乐的优雅氛围，
+        采用深红(#8B0000)与金色(#D4AF37)的主色调，呈现高雅而不失现代感的视觉风格。
+      </p>
+      <p>
+        <a href="https://github.com/yourusername/YaYun" class="inline-block bg-red-900 text-white px-4 py-2 rounded-md hover:bg-red-800 transition-colors mt-2">
+          <i class="fab fa-github mr-2"></i>项目仓库
+        </a>
+        <a href="docs/design.md" class="inline-block bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors mt-2 ml-2">
+          <i class="fas fa-file-alt mr-2"></i>设计文档
+        </a>
+      </p>
+    </div>
+
+    <!-- 设备展示区域 -->
+    <div class="device-container">
+      <!-- 首页 -->
+      <div class="device-wrapper">
+        <h2 class="device-title">首页</h2>
+        <div class="device-frame">
+          <div class="device-screen-container">
+            <iframe src="pages/home.html" class="device-screen" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
+          </div>
+        </div>
+        <div class="page-link">
+          <a href="docs/pages/home.md" target="_blank" class="doc-link">查看设计文档</a>
+        </div>
+      </div>
+
+      <!-- 发现页 -->
+      <div class="device-wrapper">
+        <h2 class="device-title">发现</h2>
+        <div class="device-frame">
+          <div class="device-screen-container">
+            <iframe src="pages/discover.html" class="device-screen" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
+          </div>
+        </div>
+        <div class="page-link">
+          <a href="docs/pages/discover.md" target="_blank" class="doc-link">查看设计文档</a>
+        </div>
+      </div>
+
+      <!-- 专辑详情页 -->
+      <div class="device-wrapper">
+        <h2 class="device-title">专辑详情</h2>
+        <div class="device-frame">
+          <div class="device-screen-container">
+            <iframe src="pages/album.html" class="device-screen" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
+          </div>
+        </div>
+        <div class="page-link">
+          <a href="docs/pages/album.md" target="_blank" class="doc-link">查看设计文档</a>
+        </div>
+      </div>
+      
+      <!-- 歌单详情页 -->
+      <div class="device-wrapper">
+        <h2 class="device-title">歌单详情</h2>
+        <div class="device-frame">
+          <div class="device-screen-container">
+            <iframe src="pages/playlist.html" class="device-screen" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
+          </div>
+        </div>
+        <div class="page-link">
+          <a href="docs/pages/playlist.md" target="_blank" class="doc-link">查看设计文档</a>
+        </div>
+      </div>
+      
+      <!-- 艺术家详情页 -->
+      <div class="device-wrapper">
+        <h2 class="device-title">艺术家详情</h2>
+        <div class="device-frame">
+          <div class="device-screen-container">
+            <iframe src="pages/artist.html" class="device-screen" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
+          </div>
+        </div>
+        <div class="page-link">
+          <a href="docs/pages/artist.md" target="_blank" class="doc-link">查看设计文档</a>
+        </div>
+      </div>
+
+      <!-- 播放页 -->
+      <div class="device-wrapper">
+        <h2 class="device-title">播放</h2>
+        <div class="device-frame">
+          <div class="device-screen-container">
+            <iframe src="pages/player.html" class="device-screen" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
+          </div>
+        </div>
+        <div class="page-link">
+          <a href="docs/pages/player.md" target="_blank" class="doc-link">查看设计文档</a>
+        </div>
+      </div>
+
+      <!-- 搜索页 -->
+      <div class="device-wrapper">
+        <h2 class="device-title">搜索</h2>
+        <div class="device-frame">
+          <div class="device-screen-container">
+            <iframe src="pages/search.html" class="device-screen" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
+          </div>
+        </div>
+        <div class="page-link">
+          <a href="docs/pages/search.md" target="_blank" class="doc-link">查看设计文档</a>
+        </div>
+      </div>
+      
+      <!-- 我的页面 -->
+      <div class="device-wrapper">
+        <h2 class="device-title">我的</h2>
+        <div class="device-frame">
+          <div class="device-screen-container">
+            <iframe src="pages/profile.html" class="device-screen" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
+          </div>
+        </div>
+        <div class="page-link">
+          <a href="docs/pages/profile.md" target="_blank" class="doc-link">查看设计文档</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 组件列表 -->
+    <div class="components-section mt-16 max-w-5xl mx-auto">
+      <h2 class="text-2xl font-bold text-center mb-8">核心组件</h2>
+      
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- 状态栏组件 -->
+        <div class="component-card bg-white p-6 rounded-lg shadow-md">
+          <h3 class="text-lg font-semibold mb-2">状态栏 <span class="text-xs text-gray-500">(Status Bar)</span></h3>
+          <p class="text-gray-600 mb-3">模拟iOS系统顶部状态栏，显示时间和系统状态图标，支持深色/浅色模式切换。</p>
+          <a href="docs/components/status-bar.md" class="text-red-800 hover:underline">查看组件文档</a>
+        </div>
+        
+        <!-- 导航栏组件 -->
+        <div class="component-card bg-white p-6 rounded-lg shadow-md">
+          <h3 class="text-lg font-semibold mb-2">导航栏 <span class="text-xs text-gray-500">(Navigation Bar)</span></h3>
+          <p class="text-gray-600 mb-3">底部应用主导航，支持标签切换动画和粒子特效，提供应用主要功能入口。</p>
+          <a href="docs/components/navigation-bar.md" class="text-red-800 hover:underline">查看组件文档</a>
+        </div>
+        
+        <!-- 播放条组件 -->
+        <div class="component-card bg-white p-6 rounded-lg shadow-md">
+          <h3 class="text-lg font-semibold mb-2">播放条 <span class="text-xs text-gray-500">(Player Bar)</span></h3>
+          <p class="text-gray-600 mb-3">迷你播放控制条，位于导航栏上方，支持左右滑动切换曲目，显示当前播放信息。</p>
+          <a href="docs/components/player-bar.md" class="text-red-800 hover:underline">查看组件文档</a>
+        </div>
+        
+        <!-- 设备框架组件 -->
+        <div class="component-card bg-white p-6 rounded-lg shadow-md">
+          <h3 class="text-lg font-semibold mb-2">设备框架 <span class="text-xs text-gray-500">(Device Frame)</span></h3>
+          <p class="text-gray-600 mb-3">模拟iPhone 15 Pro的物理外观，精确还原设备尺寸、边框材质和灵动岛等细节。</p>
+          <a href="docs/components/device-frame.md" class="text-red-800 hover:underline">查看组件文档</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+      <p>雅韵(YaYun) - 高品质经典音乐App &copy; 2023</p>
+      <p class="mt-2 text-sm">设计与开发：Your Name</p>
+    </footer>
+  </div>
+  
+  <script>
+    // 主题切换功能
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const html = document.documentElement;
+    const iframes = document.querySelectorAll('iframe.device-screen');
+    
+    // 检查系统偏好
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (prefersDark) {
+      html.classList.add('dark');
+      html.classList.remove('light');
+      themeIcon.classList.remove('fa-moon');
+      themeIcon.classList.add('fa-sun');
+    }
+    
+    // 切换主题
+    function toggleTheme() {
+      const isDark = html.classList.toggle('dark');
+      html.classList.toggle('light');
+      
+      themeIcon.classList.add('animate');
+      
+      if (isDark) {
+        themeIcon.classList.remove('fa-moon');
+        themeIcon.classList.add('fa-sun');
+      } else {
+        themeIcon.classList.remove('fa-sun');
+        themeIcon.classList.add('fa-moon');
+      }
+      
+      // 同步iframe内部页面主题 - 增强版，更持久地发送消息以确保所有iframe接收到
+      iframes.forEach(iframe => {
+        try {
+          // 方法1: 使用postMessage API (最优先)
+          if (iframe.contentWindow) {
+            // 确保发送多次消息以避免丢失
+            // 立即发送一次
+            iframe.contentWindow.postMessage({
+              type: 'themeChange',
+              isDark: isDark
+            }, '*');
+            
+            // 然后在接下来的2秒内间隔性发送，确保iframe加载完成后能收到消息
+            for (let i = 1; i <= 5; i++) {
+              setTimeout(() => {
+                iframe.contentWindow.postMessage({
+                  type: 'themeChange',
+                  isDark: isDark
+                }, '*');
+              }, i * 400); // 间隔400ms发送，持续2秒
+            }
+            
+            // 方法2: 尝试直接调用iframe内的函数
+            if (iframe.contentWindow.document) {
+              // 统一使用toggleTheme函数名，减少兼容性代码
+              if (iframe.contentWindow.toggleTheme) {
+                iframe.contentWindow.toggleTheme(isDark);
+              }
+            }
+          }
+        } catch (e) {
+          console.log('无法更新iframe主题:', e);
+        }
+      });
+      
+      // 移除动画类
+      setTimeout(() => {
+        themeIcon.classList.remove('animate');
+      }, 500);
+      
+      // 记录当前主题，用于iframe加载时继承
+      localStorage.setItem('yayun-theme', isDark ? 'dark' : 'light');
+    }
+    
+    themeToggle.addEventListener('click', toggleTheme);
+    
+    // 监听iframe加载，同步主题 - 增强版
+    iframes.forEach(iframe => {
+      iframe.addEventListener('load', () => {
+        try {
+          const isDark = html.classList.contains('dark');
+          console.log('iframe加载完成，当前主题:', isDark ? '深色' : '浅色');
+          
+          if (iframe.contentWindow) {
+            // 立即发送一次
+            iframe.contentWindow.postMessage({
+              type: 'themeChange',
+              isDark: isDark
+            }, '*');
+            
+            // 延迟多次发送，确保接收
+            for (let i = 1; i <= 3; i++) {
+              setTimeout(() => {
+                iframe.contentWindow.postMessage({
+                  type: 'themeChange',
+                  isDark: isDark
+                }, '*');
+              }, i * 300);
+            }
+            
+            if (iframe.contentWindow.document) {
+              const iframeDoc = iframe.contentWindow.document;
+              
+              // 统一使用toggleTheme函数
+              if (iframe.contentWindow.toggleTheme) {
+                iframe.contentWindow.toggleTheme(isDark);
+              }
+            }
+          }
+        } catch (e) {
+          console.log('无法更新iframe主题:', e);
+        }
+      });
+    });
+  </script>
+</body>
+</html> 

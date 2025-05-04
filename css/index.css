@@ -1,0 +1,175 @@
+/* 主容器样式 */
+.main-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 设备框架容器 */
+.device-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 40px;
+}
+
+/* 单个设备包装器 */
+.device-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+/* 设备标题 */
+.device-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+/* 设备框架 */
+.device-frame {
+  position: relative;
+  width: 417px;
+  height: 876px;
+  background-color: #1A1A1A;
+  border-radius: 45px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12), 0 10px 10px rgba(0, 0, 0, 0.04);
+  padding: 16px;
+  margin-bottom: 16px;
+  /* 钛金属拉丝效果 */
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.025),
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px,
+      transparent 2px
+    );
+}
+
+/* 设备侧边按钮 */
+.device-frame::before {
+  content: '';
+  position: absolute;
+  top: 150px;
+  right: -3px;
+  width: 3px;
+  height: 80px;
+  background-color: #111111;
+  border-radius: 2px;
+}
+
+.device-frame::after {
+  content: '';
+  position: absolute;
+  top: 150px;
+  left: -3px;
+  width: 3px;
+  height: 80px;
+  background-color: #111111;
+  border-radius: 2px;
+}
+
+/* 设备屏幕容器 */
+.device-screen-container {
+  position: relative;
+  width: 385px;
+  height: 844px;
+  border-radius: 38px;
+  overflow: hidden;
+}
+
+/* 设备屏幕 */
+.device-screen {
+  width: 385px;
+  height: 844px;
+  background-color: black;
+  border-radius: 38px;
+  overflow: hidden;
+  border: none;
+  display: block; /* 确保iframe正确显示 */
+}
+
+/* 设备屏幕内容 */
+iframe.device-screen {
+  border: none;
+  /* 重置iframe的默认样式 */
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: translateY(0); /* 确保iframe内容不会偏移 */
+}
+
+/* 文档链接 */
+.page-link {
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+.page-link a {
+  color: #8B0000;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.page-link a:hover {
+  color: #D4AF37;
+  text-decoration: underline;
+}
+
+/* 页面标题区域 */
+.page-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #8B0000;
+  margin-bottom: 10px;
+}
+
+.page-subtitle {
+  font-size: 1.2rem;
+  color: #666;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .device-container {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .device-frame {
+    transform: scale(0.8);
+    transform-origin: top center;
+  }
+  
+  .device-wrapper {
+    margin-bottom: 0;
+  }
+}
+
+/* 页脚样式 */
+.footer {
+  margin-top: 60px;
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
+  border-top: 1px solid #eee;
+} 

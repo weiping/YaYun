@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>雅韵-iPhone 15 Pro设备框架</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600&display=swap');
+    
+    :root {
+      --device-width: 375px;
+      --device-height: 812px;
+      --device-frame-width: 417px; /* 设备宽度 + 边框 */
+      --device-color: #1A1A1A; /* 深空黑 */
+      --bezel-size: 16px;
+      --corner-radius: 45px;
+      --notch-width: 110px;
+      --notch-height: 30px;
+      --dynamic-island-width: 114px;
+      --dynamic-island-height: 32px;
+      --screen-edge-glow: rgba(255, 255, 255, 0.1);
+    }
+    
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    /* 设备整体框架 */
+    .device-frame {
+      position: relative;
+      width: var(--device-frame-width);
+      height: calc(var(--device-height) + var(--bezel-size) * 2);
+      margin: 0 auto;
+      border-radius: var(--corner-radius);
+      background-color: var(--device-color);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12), 0 10px 10px rgba(0, 0, 0, 0.04);
+      overflow: hidden;
+      /* 钛金属拉丝效果 */
+      background-image: 
+        repeating-linear-gradient(
+          45deg,
+          rgba(255, 255, 255, 0.025),
+          rgba(255, 255, 255, 0.025) 1px,
+          transparent 1px,
+          transparent 2px
+        );
+    }
+    
+    /* 设备侧边按钮 */
+    .device-button {
+      position: absolute;
+      background-color: #111111;
+      border-radius: 2px;
+    }
+    
+    .power-button {
+      top: 150px;
+      right: -3px;
+      width: 3px;
+      height: 80px;
+    }
+    
+    .volume-up {
+      top: 150px;
+      left: -3px;
+      width: 3px;
+      height: 40px;
+    }
+    
+    .volume-down {
+      top: 200px;
+      left: -3px;
+      width: 3px;
+      height: 40px;
+    }
+    
+    .action-button {
+      top: 120px;
+      left: -3px;
+      width: 3px;
+      height: 20px;
+    }
+    
+    /* 屏幕区域 */
+    .device-screen {
+      position: absolute;
+      top: var(--bezel-size);
+      left: var(--bezel-size);
+      width: var(--device-width);
+      height: var(--device-height);
+      border-radius: 38px;
+      overflow: hidden;
+      background-color: #000;
+    }
+    
+    /* 屏幕边缘光晕效果 */
+    .screen-edge-glow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border: 2px solid var(--screen-edge-glow);
+      border-radius: 38px;
+      pointer-events: none;
+    }
+    
+    /* 灵动岛区域 */
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: var(--dynamic-island-width);
+      height: var(--dynamic-island-height);
+      background-color: #000;
+      border-radius: 20px;
+      z-index: 10;
+    }
+    
+    /* 底部手势条 */
+    .home-indicator {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 5px;
+      background-color: #fff;
+      border-radius: 100px;
+      opacity: 0.5;
+      z-index: 10;
+    }
+    
+    /* 底部接口 */
+    .lightning-port {
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 6px;
+      background-color: #111;
+      border-radius: 3px 3px 0 0;
+      overflow: hidden;
+    }
+    
+    .lightning-port::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 14px;
+      height: 4px;
+      background-color: #222;
+      border-radius: 2px;
+    }
+    
+    /* 内容框架 */
+    .content-frame {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      z-index: 5;
+    }
+    
+    /* 模拟屏幕内容 */
+    .screen-content {
+      flex: 1;
+      background-image: linear-gradient(135deg, #8B0000, #5E0000);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-weight: 600;
+      font-size: 24px;
+      text-align: center;
+      padding: 20px;
+    }
+    
+    /* 调试模式下的iframe */
+    .debug-frame {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: var(--device-width);
+      height: var(--device-height);
+      border: none;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <!-- iPhone 15 Pro设备框架 -->
+  <div class="device-frame">
+    <!-- 侧边按钮 -->
+    <div class="device-button power-button"></div>
+    <div class="device-button volume-up"></div>
+    <div class="device-button volume-down"></div>
+    <div class="device-button action-button"></div>
+    
+    <!-- 屏幕区域 -->
+    <div class="device-screen">
+      <!-- 灵动岛 -->
+      <div class="dynamic-island"></div>
+      
+      <!-- 屏幕内容 -->
+      <div class="content-frame">
+        <div class="screen-content">
+          雅韵(YaYun)<br>高品质经典音乐App
+        </div>
+      </div>
+      
+      <!-- 底部手势条 -->
+      <div class="home-indicator"></div>
+      
+      <!-- 屏幕边缘光晕 -->
+      <div class="screen-edge-glow"></div>
+    </div>
+    
+    <!-- 底部接口 -->
+    <div class="lightning-port"></div>
+  </div>
+
+  <script>
+    // 动态调整设备尺寸以适应不同屏幕
+    function resizeDeviceFrame() {
+      const windowHeight = window.innerHeight;
+      const deviceFrame = document.querySelector('.device-frame');
+      const deviceHeight = parseFloat(getComputedStyle(deviceFrame).height);
+      
+      if (deviceHeight > windowHeight * 0.9) {
+        // 如果设备高度超过窗口高度的90%，按比例缩小
+        const scale = (windowHeight * 0.9) / deviceHeight;
+        deviceFrame.style.transform = `scale(${scale})`;
+      } else {
+        deviceFrame.style.transform = 'scale(1)';
+      }
+    }
+    
+    // 嵌入外部内容
+    function embedContent(url) {
+      if (!url) return;
+      
+      const contentFrame = document.querySelector('.content-frame');
+      contentFrame.innerHTML = '';
+      
+      const iframe = document.createElement('iframe');
+      iframe.src = url;
+      iframe.classList.add('debug-frame');
+      contentFrame.appendChild(iframe);
+    }
+    
+    // 页面加载完成后初始化
+    window.addEventListener('load', () => {
+      resizeDeviceFrame();
+      
+      // 检查URL参数中是否有content参数，如果有则嵌入外部内容
+      const urlParams = new URLSearchParams(window.location.search);
+      const contentUrl = urlParams.get('content');
+      if (contentUrl) {
+        embedContent(contentUrl);
+      }
+    });
+    
+    // 窗口大小变化时重新调整
+    window.addEventListener('resize', resizeDeviceFrame);
+  </script>
+</body>
+</html> 
