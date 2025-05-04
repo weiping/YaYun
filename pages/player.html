@@ -6,7 +6,7 @@
   <title>雅韵-播放页面</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="../rotateVinyl.js?v=1.2" onerror="console.error('无法加载rotateVinyl.js')"></script>
+  <script src="../js/rotateVinyl.js?v=1.2" onerror="console.error('无法加载rotateVinyl.js')"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600&family=SF+Pro+Text:wght@400;500&family=New+York:wght@400;500&display=swap');
     
@@ -727,12 +727,6 @@
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- 添加主题切换按钮 -->
-  <div id="theme-toggle" class="absolute top-20 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-black bg-opacity-50 text-white cursor-pointer z-20">
-    <i class="fas fa-moon dark:hidden"></i>
-    <i class="fas fa-sun hidden dark:block"></i>
   </div>
 
   <!-- 页面容器 -->
@@ -1649,31 +1643,6 @@
           toggleTheme(event.data.isDark);
         }
       });
-      
-      // 设置主题切换按钮事件
-      const themeToggle = document.getElementById('theme-toggle');
-      if (themeToggle) {
-        themeToggle.addEventListener('click', function() {
-          console.log("点击主题切换按钮");
-          const newIsDark = toggleTheme();
-          
-          // 创建粒子效果
-          createEnhancedParticles(this, newIsDark);
-          
-          // 如果在iframe中，通知父窗口主题已变更
-          try {
-            if (isInIframe && window.parent) {
-              window.parent.postMessage({
-                type: 'themeChange',
-                isDark: newIsDark,
-                source: 'player'
-              }, '*');
-            }
-          } catch (e) {
-            console.warn("无法通知父窗口主题变更:", e);
-          }
-        });
-      }
     }
     
     // 全局主题切换函数 - 加强版
@@ -1682,9 +1651,6 @@
       
       const body = document.body;
       const statusBar = document.getElementById('status-bar');
-      const themeToggle = document.getElementById('theme-toggle');
-      const moonIcon = themeToggle ? themeToggle.querySelector('.fa-moon') : null;
-      const sunIcon = themeToggle ? themeToggle.querySelector('.fa-sun') : null;
       
       try {
         // 函数以boolean参数调用时，设置指定主题
@@ -1696,17 +1662,6 @@
             body.classList.add('dark');
           } else {
             body.classList.remove('dark');
-          }
-          
-          // 更新图标显示
-          if (moonIcon && sunIcon) {
-            if (isDark) {
-              moonIcon.classList.add('hidden');
-              sunIcon.classList.remove('hidden');
-            } else {
-              moonIcon.classList.remove('hidden');
-              sunIcon.classList.add('hidden');
-            }
           }
           
           // 更新状态栏
@@ -1732,12 +1687,6 @@
         else {
           const isDarkNow = body.classList.toggle('dark');
           console.log("主题已切换为:", isDarkNow ? "深色" : "浅色");
-          
-          // 更新图标显示
-          if (moonIcon && sunIcon) {
-            moonIcon.classList.toggle('hidden');
-            sunIcon.classList.toggle('hidden');
-          }
           
           // 更新状态栏
           if (statusBar) {

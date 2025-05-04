@@ -188,5 +188,4 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("[rotateVinyl.js] 导出rotateVinyl作为directRotateVinyl的备用");
     window.directRotateVinyl = rotateVinyl;
   }
-});
-
+}); 
