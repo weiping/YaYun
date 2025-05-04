@@ -39,6 +39,69 @@
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
+    
+    <!-- 折线图渐变 -->
+    <linearGradient id="chart-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#8B0000" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#8B0000" stop-opacity="0.1"/>
+    </linearGradient>
+    
+    <!-- 折线图网格渐变 -->
+    <linearGradient id="grid-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#E0E0E0" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#E0E0E0" stop-opacity="0.2"/>
+    </linearGradient>
+    
+    <!-- 动态折线动画 -->
+    <style type="text/css">
+      @keyframes dash {
+        from {
+          stroke-dashoffset: 500;
+        }
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      
+      @keyframes fade-in {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      
+      @keyframes pulse {
+        0% {
+          r: 3;
+          opacity: 0.3;
+        }
+        50% {
+          r: 4;
+          opacity: 1;
+        }
+        100% {
+          r: 3;
+          opacity: 0.3;
+        }
+      }
+      
+      .chart-line {
+        stroke-dasharray: 500;
+        stroke-dashoffset: 500;
+        animation: dash 3s ease-in-out forwards;
+      }
+      
+      .chart-area {
+        opacity: 0;
+        animation: fade-in 2s ease-in-out 1s forwards;
+      }
+      
+      .data-point {
+        animation: pulse 2s infinite;
+      }
+    </style>
   </defs>
   
   <!-- 图标系统 -->
@@ -136,8 +199,65 @@
     </g>
   </g>
   
+  <!-- 新增：动态折线图区域 -->
+  <g class="chart-section" transform="translate(16, 295)">
+    <!-- 卡片背景 -->
+    <rect x="0" y="0" width="343" height="160" rx="16" fill="white" filter="url(#card-shadow)"/>
+    
+    <!-- 标题 -->
+    <g transform="translate(16, 24)">
+      <text font-family="'SF Pro Display'" font-size="16" font-weight="600" fill="#212121">古典音乐播放量趋势</text>
+      <text y="20" font-family="'SF Pro Text'" font-size="12" fill="#757575">过去7天数据</text>
+    </g>
+    
+    <!-- 图表区域 -->
+    <g transform="translate(16, 60)">
+      <!-- 水平网格线 -->
+      <line x1="0" y1="0" x2="310" y2="0" stroke="url(#grid-gradient)" stroke-width="0.5" stroke-dasharray="2,2"/>
+      <line x1="0" y1="20" x2="310" y2="20" stroke="url(#grid-gradient)" stroke-width="0.5" stroke-dasharray="2,2"/>
+      <line x1="0" y1="40" x2="310" y2="40" stroke="url(#grid-gradient)" stroke-width="0.5" stroke-dasharray="2,2"/>
+      <line x1="0" y1="60" x2="310" y2="60" stroke="url(#grid-gradient)" stroke-width="0.5" stroke-dasharray="2,2"/>
+      <line x1="0" y1="80" x2="310" y2="80" stroke="url(#grid-gradient)" stroke-width="0.5" stroke-dasharray="2,2"/>
+      
+      <!-- 日期标签 -->
+      <text x="0" y="100" font-family="'SF Pro Text'" font-size="10" fill="#757575">周一</text>
+      <text x="50" y="100" font-family="'SF Pro Text'" font-size="10" fill="#757575">周二</text>
+      <text x="100" y="100" font-family="'SF Pro Text'" font-size="10" fill="#757575">周三</text>
+      <text x="150" y="100" font-family="'SF Pro Text'" font-size="10" fill="#757575">周四</text>
+      <text x="200" y="100" font-family="'SF Pro Text'" font-size="10" fill="#757575">周五</text>
+      <text x="250" y="100" font-family="'SF Pro Text'" font-size="10" fill="#757575">周六</text>
+      <text x="300" y="100" font-family="'SF Pro Text'" font-size="10" fill="#757575">周日</text>
+      
+      <!-- 数据折线 -->
+      <polyline 
+        class="chart-line"
+        points="0,70 50,60 100,40 150,50 200,20 250,30 300,10" 
+        fill="none" 
+        stroke="#8B0000" 
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+      
+      <!-- 区域填充 -->
+      <path 
+        class="chart-area"
+        d="M0,70 L50,60 L100,40 L150,50 L200,20 L250,30 L300,10 L300,80 L0,80 Z" 
+        fill="url(#chart-gradient)"
+        opacity="0.5"/>
+      
+      <!-- 数据点 -->
+      <circle class="data-point" cx="0" cy="70" r="3" fill="#8B0000"/>
+      <circle class="data-point" cx="50" cy="60" r="3" fill="#8B0000"/>
+      <circle class="data-point" cx="100" cy="40" r="3" fill="#8B0000"/>
+      <circle class="data-point" cx="150" cy="50" r="3" fill="#8B0000"/>
+      <circle class="data-point" cx="200" cy="20" r="3" fill="#8B0000"/>
+      <circle class="data-point" cx="250" cy="30" r="3" fill="#8B0000"/>
+      <circle class="data-point" cx="300" cy="10" r="3" fill="#8B0000"/>
+    </g>
+  </g>
+  
   <!-- 最新专辑部分 -->
-  <g class="albums-section" transform="translate(16, 300)">
+  <g class="albums-section" transform="translate(16, 470)">
     <!-- 部分标题 -->
     <g class="section-header">
       <text font-family="'SF Pro Display'" font-size="20" font-weight="600" fill="#212121">最新专辑</text>
