@@ -7,6 +7,12 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="../js/rotateVinyl.js?v=1.2" onerror="console.error('无法加载rotateVinyl.js')"></script>
+  <!-- 添加浏览器兼容性检测脚本 -->
+  <script src="../js/browser-compatibility.js" defer></script>
+  <!-- 添加性能优化脚本 -->
+  <script src="../js/performance-optimizer.js" defer></script>
+  <!-- 添加键盘可访问性支持脚本 -->
+  <script src="../js/keyboard-accessibility.js" defer></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600&family=SF+Pro+Text:wght@400;500&family=New+York:wght@400;500&display=swap');
     
@@ -326,6 +332,7 @@
       padding: 0 20px;
     }
     
+    /* 进度条增强 - 增加触摸区域 */
     .progress-bar {
       width: 100%;
       height: 4px;
@@ -333,6 +340,19 @@
       border-radius: 2px;
       position: relative;
       margin-bottom: 10px;
+      cursor: pointer;
+      touch-action: none; /* 防止浏览器默认触摸行为 */
+    }
+    
+    /* 增加触摸区域 */
+    .progress-bar::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 0;
+      right: 0;
+      bottom: -10px;
+      z-index: 1;
     }
     
     .progress-current {
@@ -390,6 +410,7 @@
       position: relative;
       overflow: hidden;
       -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮 */
+      touch-action: manipulation; /* 改善触摸体验 */
     }
     
     .dark .control-button {
@@ -691,6 +712,33 @@
         opacity: 0;
       }
     }
+    
+    /* 按钮样式 */
+    .control-button, .action-button, .quality-option {
+      -webkit-tap-highlight-color: transparent; /* 移除iOS触摸高亮 */
+      touch-action: manipulation; /* 改善触摸体验 */
+    }
+    
+    /* 触摸反馈相关 */
+    .touch-ripple {
+      position: absolute;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.3);
+      transform: scale(0);
+      pointer-events: none;
+      z-index: 10;
+    }
+    
+    /* 触摸滑动区域 */
+    .swipe-area {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      touch-action: pan-x pan-y; /* 允许水平和垂直滑动 */
+    }
   </style>
 </head>
 <body class="dark">
@@ -740,6 +788,9 @@
         <i class="fas fa-chevron-left text-white"></i>
       </a>
     </div>
+    
+    <!-- 触摸滑动区域 -->
+    <div class="swipe-area" id="swipeArea"></div>
     
     <!-- 唱片机区域 -->
     <div class="vinyl-player">
@@ -910,8 +961,17 @@
       // 初始化进度条
       updateProgressDisplay();
       
+      // 初始化进度条触摸控制
+      initProgressTouch();
+      
       // 初始化按钮事件
       initButtonEvents();
+      
+      // 初始化左右滑动切换
+      initSwipeGestures();
+      
+      // 初始化页面触摸反馈
+      initTouchFeedback();
       
       // 显示音质提示
       setTimeout(() => {
@@ -1519,9 +1579,301 @@
       }
     }
     
+    // 初始化进度条触摸控制
+    function initProgressTouch() {
+      const progressBar = document.querySelector('.progress-bar');
+      const handleEl = document.getElementById('progressHandle');
+      const progressCurrentEl = document.getElementById('progressCurrent');
+      
+      if (!progressBar || !handleEl || !progressCurrentEl) {
+        console.error("进度条元素不存在");
+        return;
+      }
+      
+      // 记录拖动状态
+      let isDragging = false;
+      // 记录播放状态，用于拖动时暂时暂停播放
+      let wasPlaying = false;
+      
+      // 显示触摸反馈指示
+      function showTouchFeedback(show) {
+        if (show) {
+          handleEl.style.transform = 'translate(-50%, -50%) scale(1.5)';
+          handleEl.style.boxShadow = '0 0 10px rgba(139, 0, 0, 0.5)';
+        } else {
+          handleEl.style.transform = 'translate(-50%, -50%)';
+          handleEl.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.2)';
+        }
+      }
+      
+      // 计算触摸位置对应的进度
+      function calculateProgress(e) {
+        const rect = progressBar.getBoundingClientRect();
+        const clientX = e.clientX || (e.touches && e.touches[0].clientX) || (e.changedTouches && e.changedTouches[0].clientX);
+        
+        if (clientX === undefined) return null;
+        
+        let position = (clientX - rect.left) / rect.width;
+        // 限制在0-1范围内
+        position = Math.max(0, Math.min(1, position));
+        return position;
+      }
+      
+      // 更新UI显示
+      function updateUI(progress) {
+        if (progress === null) return;
+        
+        const progressPercent = progress * 100;
+        progressCurrentEl.style.width = `${progressPercent}%`;
+        handleEl.style.left = `${progressPercent}%`;
+        
+        // 更新当前时间
+        currentTime = Math.floor(progress * totalTime);
+        currentTimeEl.textContent = formatTime(currentTime);
+        
+        // 创建波纹效果
+        createProgressRipple(progress);
+      }
+      
+      // 创建进度条波纹效果
+      function createProgressRipple(progress) {
+        const rect = progressBar.getBoundingClientRect();
+        const x = rect.left + (rect.width * progress);
+        const y = rect.top + (rect.height / 2);
+        
+        const ripple = document.createElement('div');
+        ripple.className = 'progress-ripple';
+        ripple.style.cssText = `
+          position: absolute;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background-color: rgba(139, 0, 0, 0.6);
+          transform: scale(0);
+          z-index: 100;
+          pointer-events: none;
+          animation: progressRipple 0.5s ease-out;
+        `;
+        
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        
+        document.body.appendChild(ripple);
+        
+        // 添加一次性动画
+        const keyframes = document.createElement('style');
+        keyframes.textContent = `
+          @keyframes progressRipple {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+          }
+        `;
+        document.head.appendChild(keyframes);
+        
+        // 动画结束后移除元素
+        setTimeout(() => {
+          ripple.remove();
+          keyframes.remove();
+        }, 500);
+      }
+      
+      // 触摸开始事件
+      function handleTouchStart(e) {
+        // 阻止默认行为和事件冒泡
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // 记录当前播放状态
+        wasPlaying = isPlaying;
+        
+        // 如果正在播放，暂时暂停以减少CPU负担
+        if (isPlaying) {
+          stopProgress();
+          // 注意：此处不改变isPlaying状态或图标，只是暂停更新
+        }
+        
+        isDragging = true;
+        showTouchFeedback(true);
+        
+        // 立即更新位置
+        const progress = calculateProgress(e);
+        if (progress !== null) {
+          updateUI(progress);
+        }
+        
+        // 添加鼠标/触摸移动和结束事件
+        document.addEventListener('mousemove', handleTouchMove);
+        document.addEventListener('touchmove', handleTouchMove, { passive: false });
+        document.addEventListener('mouseup', handleTouchEnd);
+        document.addEventListener('touchend', handleTouchEnd);
+      }
+      
+      // 触摸移动事件
+      function handleTouchMove(e) {
+        if (!isDragging) return;
+        
+        // 阻止默认行为和事件冒泡
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // 更新位置
+        const progress = calculateProgress(e);
+        if (progress !== null) {
+          updateUI(progress);
+        }
+      }
+      
+      // 触摸结束事件
+      function handleTouchEnd(e) {
+        if (!isDragging) return;
+        
+        // 最后更新一次位置
+        const progress = calculateProgress(e);
+        if (progress !== null) {
+          updateUI(progress);
+        }
+        
+        // 如果之前是播放状态，恢复播放
+        if (wasPlaying) {
+          startProgress();
+        }
+        
+        isDragging = false;
+        showTouchFeedback(false);
+        
+        // 移除事件监听
+        document.removeEventListener('mousemove', handleTouchMove);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('mouseup', handleTouchEnd);
+        document.removeEventListener('touchend', handleTouchEnd);
+        
+        // 添加粒子效果
+        createParticles(handleEl);
+      }
+      
+      // 添加触摸/鼠标事件监听
+      progressBar.addEventListener('mousedown', handleTouchStart);
+      progressBar.addEventListener('touchstart', handleTouchStart, { passive: false });
+      
+      console.log("进度条触摸控制初始化完成");
+    }
+    
+    // 初始化左右滑动切换手势
+    function initSwipeGestures() {
+      const vinylContainer = document.querySelector('.vinyl-record-container');
+      const playerContainer = document.querySelector('.player-container');
+      
+      if (!vinylContainer || !playerContainer) {
+        console.error("滑动手势初始化失败：容器元素不存在");
+        return;
+      }
+      
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let touchEndX = 0;
+      let touchEndY = 0;
+      let minSwipeDistance = 100; // 最小滑动距离，调整手势灵敏度
+      
+      // 滑动开始
+      function handleSwipeStart(e) {
+        touchStartX = e.touches ? e.touches[0].clientX : e.clientX;
+        touchStartY = e.touches ? e.touches[0].clientY : e.clientY;
+      }
+      
+      // 滑动结束
+      function handleSwipeEnd(e) {
+        touchEndX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+        touchEndY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+        
+        // 计算水平和垂直滑动距离
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = touchEndY - touchStartY;
+        
+        // 确保是水平滑动（水平距离大于垂直距离）
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          // 检查最小滑动距离
+          if (Math.abs(deltaX) >= minSwipeDistance) {
+            if (deltaX > 0) {
+              // 向右滑动 - 上一曲
+              console.log("唱片区域向右滑动 - 切换到上一曲");
+              showSwipeFeedback('right');
+              prevTrack();
+            } else {
+              // 向左滑动 - 下一曲
+              console.log("唱片区域向左滑动 - 切换到下一曲");
+              showSwipeFeedback('left');
+              nextTrack();
+            }
+          }
+        }
+      }
+      
+      // 显示滑动反馈效果
+      function showSwipeFeedback(direction) {
+        // 创建滑动指示器
+        const indicator = document.createElement('div');
+        
+        // 设置样式和内容
+        indicator.style.cssText = `
+          position: absolute;
+          top: 50%;
+          ${direction === 'left' ? 'right' : 'left'}: 10px;
+          transform: translateY(-50%);
+          background-color: rgba(0, 0, 0, 0.5);
+          color: white;
+          padding: 15px;
+          border-radius: 50%;
+          z-index: 100;
+          opacity: 0;
+          animation: swipeIndicator 0.8s ease-out;
+        `;
+        
+        // 添加图标
+        indicator.innerHTML = `<i class="fas fa-${direction === 'left' ? 'forward' : 'backward'}-step fa-2x"></i>`;
+        
+        // 添加到容器
+        vinylContainer.appendChild(indicator);
+        
+        // 添加一次性动画
+        const keyframes = document.createElement('style');
+        keyframes.textContent = `
+          @keyframes swipeIndicator {
+            0% { opacity: 0; transform: translateY(-50%) scale(0.5); }
+            50% { opacity: 0.9; transform: translateY(-50%) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-50%) scale(1.5); }
+          }
+        `;
+        document.head.appendChild(keyframes);
+        
+        // 动画结束后移除元素
+        setTimeout(() => {
+          indicator.remove();
+          keyframes.remove();
+        }, 800);
+      }
+      
+      // 添加事件监听
+      vinylContainer.addEventListener('touchstart', handleSwipeStart, { passive: true });
+      vinylContainer.addEventListener('touchend', handleSwipeEnd, { passive: true });
+      
+      console.log("唱片区域滑动手势初始化完成");
+    }
+    
     // 页面加载完成后初始化
     document.addEventListener('DOMContentLoaded', function() {
       console.log("页面加载完成，初始化播放器...");
+      
+      // 首先运行兼容性测试并应用修复
+      if (window.yaYunCompatibilityTest) {
+        const testResults = window.yaYunCompatibilityTest.run();
+        console.log('兼容性测试结果:', testResults);
+        
+        // 如果有严重问题，显示提示
+        const highSeverityIssues = testResults.issues.filter(issue => issue.severity === 'high');
+        if (highSeverityIssues.length > 0) {
+          console.warn('检测到潜在的兼容性问题:', highSeverityIssues);
+        }
+      }
       
       // 立即添加旋转动画样式
       addRotateDiskAnimationStyle();
@@ -1723,6 +2075,416 @@
       minutes = minutes < 10 ? '0' + minutes : minutes;
       
       document.getElementById('status-time').textContent = `${hours}:${minutes}`;
+    }
+    
+    // 初始化页面触摸反馈
+    function initTouchFeedback() {
+      const container = document.querySelector('.player-container');
+      const swipeArea = document.getElementById('swipeArea');
+      const songInfo = document.querySelector('.song-info');
+      const vinylPlayer = document.querySelector('.vinyl-player');
+      
+      if (!container || !swipeArea || !songInfo || !vinylPlayer) {
+        console.error("触摸反馈初始化失败：元素不存在");
+        return;
+      }
+      
+      // 触摸反馈效果变量
+      let startY = 0;
+      let currentSection = 'player'; // 当前显示的部分: player, lyrics, info
+      let isSwiping = false;
+      let sections = ['player', 'lyrics', 'info'];
+      let sectionIndex = 0;
+      let touchStartTime = 0;
+      
+      // 创建歌词和信息面板
+      const lyricsPanel = createLyricsPanel();
+      const infoPanel = createInfoPanel();
+      
+      // 将面板添加到容器中
+      vinylPlayer.appendChild(lyricsPanel);
+      vinylPlayer.appendChild(infoPanel);
+      
+      // 创建三点指示器
+      const pageIndicator = createPageIndicator();
+      container.appendChild(pageIndicator);
+      
+      // 添加触摸开始事件
+      swipeArea.addEventListener('touchstart', function(e) {
+        // 记录开始位置和时间
+        startY = e.touches[0].clientY;
+        touchStartTime = new Date().getTime();
+        isSwiping = true;
+        
+        // 创建触摸涟漪效果
+        createTouchRipple(e);
+      }, { passive: true });
+      
+      // 添加触摸移动事件
+      swipeArea.addEventListener('touchmove', function(e) {
+        if (!isSwiping) return;
+        
+        // 计算移动距离
+        const deltaY = e.touches[0].clientY - startY;
+        
+        // 显示实时预览移动反馈
+        if (Math.abs(deltaY) > 20) {
+          const direction = deltaY > 0 ? 'down' : 'up';
+          showSwipePreview(direction);
+        }
+      }, { passive: true });
+      
+      // 添加触摸结束事件
+      swipeArea.addEventListener('touchend', function(e) {
+        if (!isSwiping) return;
+        
+        const endY = e.changedTouches[0].clientY;
+        const deltaY = endY - startY;
+        const touchDuration = new Date().getTime() - touchStartTime;
+        
+        // 确保是垂直滑动并且滑动距离足够长
+        if (Math.abs(deltaY) > 100 || (Math.abs(deltaY) > 50 && touchDuration < 300)) {
+          if (deltaY < 0) {
+            // 向上滑动，显示下一个部分
+            sectionIndex = (sectionIndex + 1) % sections.length;
+          } else {
+            // 向下滑动，显示上一个部分
+            sectionIndex = (sectionIndex - 1 + sections.length) % sections.length;
+          }
+          
+          // 更新显示
+          showSection(sections[sectionIndex]);
+          
+          // 更新指示器
+          updatePageIndicator(sectionIndex);
+        }
+        
+        isSwiping = false;
+      }, { passive: true });
+      
+      // 创建触摸涟漪效果
+      function createTouchRipple(e) {
+        const ripple = document.createElement('div');
+        ripple.className = 'touch-ripple';
+        
+        // 设置涟漪位置
+        const x = e.touches[0].clientX;
+        const y = e.touches[0].clientY;
+        
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        ripple.style.animation = 'touchRipple 0.6s linear';
+        
+        // 添加到容器
+        container.appendChild(ripple);
+        
+        // 添加一次性动画
+        const keyframes = document.createElement('style');
+        keyframes.textContent = `
+          @keyframes touchRipple {
+            0% { transform: scale(0); opacity: 0.5; }
+            100% { transform: scale(3); opacity: 0; }
+          }
+        `;
+        document.head.appendChild(keyframes);
+        
+        // 动画结束后移除元素
+        setTimeout(() => {
+          ripple.remove();
+          keyframes.remove();
+        }, 600);
+      }
+      
+      // 显示滑动预览效果
+      function showSwipePreview(direction) {
+        // 获取对应部分
+        let targetIndex = sectionIndex;
+        
+        if (direction === 'up') {
+          targetIndex = (sectionIndex + 1) % sections.length;
+        } else {
+          targetIndex = (sectionIndex - 1 + sections.length) % sections.length;
+        }
+        
+        // 创建预览提示
+        const preview = document.createElement('div');
+        preview.className = 'swipe-preview';
+        preview.style.cssText = `
+          position: absolute;
+          ${direction === 'up' ? 'bottom' : 'top'}: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: rgba(0, 0, 0, 0.7);
+          color: white;
+          padding: 10px 15px;
+          border-radius: 20px;
+          z-index: 200;
+          font-size: 14px;
+          opacity: 0;
+          animation: previewShow 0.3s forwards;
+          pointer-events: none;
+        `;
+        
+        // 设置预览内容
+        preview.textContent = direction === 'up' ? 
+          (targetIndex === 1 ? '查看歌词' : '查看详情') : 
+          (targetIndex === 0 ? '返回播放器' : '查看歌词');
+        
+        // 添加图标
+        const icon = document.createElement('i');
+        icon.className = `fas fa-chevron-${direction === 'up' ? 'up' : 'down'} mr-2`;
+        preview.prepend(icon);
+        
+        // 添加到容器
+        container.appendChild(preview);
+        
+        // 添加一次性动画
+        const keyframes = document.createElement('style');
+        keyframes.textContent = `
+          @keyframes previewShow {
+            0% { opacity: 0; transform: translateX(-50%) translateY(${direction === 'up' ? '10px' : '-10px'}); }
+            100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+          }
+        `;
+        document.head.appendChild(keyframes);
+        
+        // 短暂显示后移除
+        setTimeout(() => {
+          preview.style.animation = 'previewHide 0.3s forwards';
+          
+          const hideKeyframes = document.createElement('style');
+          hideKeyframes.textContent = `
+            @keyframes previewHide {
+              0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+              100% { opacity: 0; transform: translateX(-50%) translateY(${direction === 'up' ? '-10px' : '10px'}); }
+            }
+          `;
+          document.head.appendChild(hideKeyframes);
+          
+          setTimeout(() => {
+            preview.remove();
+            keyframes.remove();
+            hideKeyframes.remove();
+          }, 300);
+        }, 800);
+      }
+      
+      // 创建歌词面板
+      function createLyricsPanel() {
+        const panel = document.createElement('div');
+        panel.className = 'lyrics-panel';
+        panel.style.cssText = `
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.8);
+          color: white;
+          padding: 20px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.3s ease;
+          z-index: 50;
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+        `;
+        
+        // 添加歌词内容
+        panel.innerHTML = `
+          <h2 class="text-2xl font-bold mb-6">莫扎特：第三十五交响曲 "哈夫纳"</h2>
+          <div class="lyrics-content overflow-y-auto w-full max-h-[60vh] px-4 py-2">
+            <p class="mb-4 opacity-70">K. 385: 1. Allegro con spirito</p>
+            <p class="mb-4 font-bold">正在播放...</p>
+            <p class="mb-4 opacity-70">K. 385: 2. Andante</p>
+            <p class="mb-4 opacity-70">K. 385: 3. Menuetto</p>
+            <p class="mb-4 opacity-70">K. 385: 4. Finale. Presto</p>
+            <p class="mt-8 text-sm opacity-50">这是一部管弦乐作品，没有歌词</p>
+          </div>
+        `;
+        
+        return panel;
+      }
+      
+      // 创建信息面板
+      function createInfoPanel() {
+        const panel = document.createElement('div');
+        panel.className = 'info-panel';
+        panel.style.cssText = `
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.8);
+          color: white;
+          padding: 20px;
+          display: flex;
+          flex-direction: column;
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.3s ease;
+          z-index: 50;
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+        `;
+        
+        // 添加信息内容
+        panel.innerHTML = `
+          <h2 class="text-2xl font-bold mb-4">作品信息</h2>
+          <div class="info-content overflow-y-auto w-full pr-2">
+            <div class="mb-4">
+              <h3 class="text-lg font-semibold">作曲家</h3>
+              <p>沃尔夫冈·阿玛多伊斯·莫扎特 (1756-1791)</p>
+            </div>
+            <div class="mb-4">
+              <h3 class="text-lg font-semibold">指挥</h3>
+              <p>伦纳德·伯恩斯坦</p>
+            </div>
+            <div class="mb-4">
+              <h3 class="text-lg font-semibold">乐团</h3>
+              <p>维也纳爱乐乐团</p>
+            </div>
+            <div class="mb-4">
+              <h3 class="text-lg font-semibold">创作年代</h3>
+              <p>1782-1783年</p>
+            </div>
+            <div class="mb-4">
+              <h3 class="text-lg font-semibold">编号</h3>
+              <p>K. 385</p>
+            </div>
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold">录制年份</h3>
+              <p>1964年</p>
+            </div>
+            <div class="mb-4">
+              <h3 class="text-lg font-semibold">作品简介</h3>
+              <p class="text-sm leading-relaxed">
+                莫扎特的《哈夫纳交响曲》是为庆祝莫扎特家族的朋友西格蒙德·哈夫纳晋升为萨尔茨堡市长而作。这部交响曲充满欢庆气氛，乐观而热闹，是莫扎特交响曲作品中的代表作。全曲由四个乐章组成，第一乐章充满活力，第二乐章优美抒情，第三乐章是典型的小步舞曲，第四乐章则速度飞快，技巧性强，展现了莫扎特出色的作曲才华。
+              </p>
+            </div>
+          </div>
+        `;
+        
+        return panel;
+      }
+      
+      // 创建页面指示器
+      function createPageIndicator() {
+        const indicator = document.createElement('div');
+        indicator.className = 'page-indicator';
+        indicator.style.cssText = `
+          position: absolute;
+          bottom: 15px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          gap: 8px;
+          z-index: 100;
+        `;
+        
+        // 添加三个点
+        for (let i = 0; i < 3; i++) {
+          const dot = document.createElement('div');
+          dot.style.cssText = `
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: ${i === 0 ? '#8B0000' : 'rgba(255, 255, 255, 0.4)'};
+            transition: background-color 0.3s ease, transform 0.3s ease;
+          `;
+          if (i === 0) {
+            dot.style.transform = 'scale(1.5)';
+          }
+          indicator.appendChild(dot);
+        }
+        
+        return indicator;
+      }
+      
+      // 更新页面指示器
+      function updatePageIndicator(activeIndex) {
+        const dots = document.querySelectorAll('.page-indicator div');
+        if (!dots.length) return;
+        
+        dots.forEach((dot, index) => {
+          if (index === activeIndex) {
+            dot.style.backgroundColor = '#8B0000';
+            dot.style.transform = 'scale(1.5)';
+          } else {
+            dot.style.backgroundColor = 'rgba(255, 255, 255, 0.4)';
+            dot.style.transform = 'scale(1)';
+          }
+        });
+      }
+      
+      // 显示指定部分
+      function showSection(section) {
+        const lyricsPanel = document.querySelector('.lyrics-panel');
+        const infoPanel = document.querySelector('.info-panel');
+        const mainPlayer = document.querySelector('.vinyl-record-container');
+        const songInfoSection = document.querySelector('.song-info');
+        const controlsSection = document.querySelector('.controls');
+        const qualitySection = document.querySelector('.quality-selector');
+        const bottomSection = document.querySelector('.bottom-actions');
+        
+        // 根据部分名显示对应内容
+        switch(section) {
+          case 'player':
+            // 显示播放器，隐藏其他
+            lyricsPanel.style.opacity = '0';
+            lyricsPanel.style.pointerEvents = 'none';
+            infoPanel.style.opacity = '0';
+            infoPanel.style.pointerEvents = 'none';
+            
+            mainPlayer.style.opacity = '1';
+            songInfoSection.style.opacity = '1';
+            controlsSection.style.opacity = '1';
+            qualitySection.style.opacity = '1';
+            bottomSection.style.opacity = '1';
+            
+            currentSection = 'player';
+            break;
+            
+          case 'lyrics':
+            // 显示歌词，隐藏其他
+            lyricsPanel.style.opacity = '1';
+            lyricsPanel.style.pointerEvents = 'auto';
+            infoPanel.style.opacity = '0';
+            infoPanel.style.pointerEvents = 'none';
+            
+            mainPlayer.style.opacity = '0.2';
+            songInfoSection.style.opacity = '0.2';
+            controlsSection.style.opacity = '0.2';
+            qualitySection.style.opacity = '0';
+            bottomSection.style.opacity = '0';
+            
+            currentSection = 'lyrics';
+            break;
+            
+          case 'info':
+            // 显示信息，隐藏其他
+            lyricsPanel.style.opacity = '0';
+            lyricsPanel.style.pointerEvents = 'none';
+            infoPanel.style.opacity = '1';
+            infoPanel.style.pointerEvents = 'auto';
+            
+            mainPlayer.style.opacity = '0.2';
+            songInfoSection.style.opacity = '0.2';
+            controlsSection.style.opacity = '0.2';
+            qualitySection.style.opacity = '0';
+            bottomSection.style.opacity = '0';
+            
+            currentSection = 'info';
+            break;
+        }
+      }
+      
+      console.log("页面触摸反馈初始化完成");
     }
   </script>
 </body>
