@@ -6,7 +6,7 @@
   <title>雅韵-播放页面</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="../rotateVinyl.js"></script>
+  <script src="../rotateVinyl.js?v=1.2" onerror="console.error('无法加载rotateVinyl.js')"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600&family=SF+Pro+Text:wght@400;500&family=New+York:wght@400;500&display=swap');
     
@@ -729,6 +729,12 @@
     </div>
   </div>
 
+  <!-- 添加主题切换按钮 -->
+  <div id="theme-toggle" class="absolute top-20 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-black bg-opacity-50 text-white cursor-pointer z-20">
+    <i class="fas fa-moon dark:hidden"></i>
+    <i class="fas fa-sun hidden dark:block"></i>
+  </div>
+
   <!-- 页面容器 -->
   <div class="player-container">
     <!-- 毛玻璃背景效果 -->
@@ -791,7 +797,7 @@
         <div class="control-button">
           <i class="fas fa-backward"></i>
         </div>
-        <div class="control-button play-button" id="playButton" onclick="togglePlay()">
+        <div class="control-button play-button" id="playButton">
           <i class="fas fa-play" id="playIcon"></i>
         </div>
         <div class="control-button">
@@ -857,9 +863,49 @@
     let isVisualizationActive = true;
     const visualizerBars = [];
     
+    // 直接在页面内定义旋转控制函数，确保一定可用
+    function directRotateVinyl(shouldRotate) {
+      const vinylElement = document.querySelector('.vinyl-record') || document.getElementById('vinyl');
+      
+      if (!vinylElement) {
+        console.error("找不到唱片元素");
+        return;
+      }
+      
+      console.log("页面内直接控制唱片旋转:", shouldRotate);
+      
+      if (shouldRotate) {
+        // 开始旋转
+        vinylElement.classList.add('playing');
+        vinylElement.style.setProperty('animation', 'rotateDisk 20s linear infinite', 'important');
+        vinylElement.style.setProperty('animation-play-state', 'running', 'important');
+        // 强制浏览器重新计算样式
+        void vinylElement.offsetWidth;
+      } else {
+        // 停止旋转
+        vinylElement.classList.remove('playing');
+        vinylElement.style.setProperty('animation', 'none', 'important');
+        vinylElement.style.setProperty('animation-play-state', 'paused', 'important');
+        vinylElement.style.setProperty('transform', 'rotate(0deg)', 'important');
+      }
+      
+      // 添加内联样式检查
+      setTimeout(() => {
+        console.log("唱片旋转状态检查:", {
+          "类名": vinylElement.className,
+          "内联动画": vinylElement.style.animation,
+          "计算样式动画": window.getComputedStyle(vinylElement).animation,
+          "动画状态": window.getComputedStyle(vinylElement).animationPlayState
+        });
+      }, 50);
+    }
+    
     // 初始化页面
     function initPlayer() {
       console.log("初始化播放器...");
+      
+      // 确保有正确的CSS动画定义
+      addRotateDiskAnimationStyle();
       
       // 创建音频可视化条
       createVisualizerBars();
@@ -888,6 +934,31 @@
         playButton: playButton,
         playIcon: playIcon
       });
+    }
+    
+    // 添加旋转动画CSS样式
+    function addRotateDiskAnimationStyle() {
+      if (!document.querySelector('style#vinyl-animations-inline')) {
+        const styleEl = document.createElement('style');
+        styleEl.id = 'vinyl-animations-inline';
+        styleEl.innerHTML = `
+          @keyframes rotateDisk {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          
+          .vinyl-record.playing {
+            animation-name: rotateDisk !important;
+            animation-duration: 20s !important;
+            animation-timing-function: linear !important;
+            animation-iteration-count: infinite !important;
+            animation-play-state: running !important;
+            animation-delay: 0s !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+        console.log("已添加内联旋转动画样式");
+      }
     }
     
     // 创建音频可视化条
@@ -989,32 +1060,66 @@
     
     // 初始化按钮事件
     function initButtonEvents() {
-      // 播放/暂停按钮
-      playButton.addEventListener('click', togglePlay);
+      // 播放/暂停按钮 - 确保只绑定一次事件
+      if (playButton) {
+        // 清除所有现有事件
+        const newPlayButton = playButton.cloneNode(true);
+        playButton.parentNode.replaceChild(newPlayButton, playButton);
+        
+        // 重新获取引用并添加事件监听器
+        const playBtn = document.getElementById('playButton');
+        playBtn.addEventListener('click', function(event) {
+          console.log("播放按钮被点击 (新事件处理程序)");
+          event.preventDefault();
+          event.stopPropagation();
+          togglePlay();
+        });
+      }
       
       // 上一曲按钮
-      document.getElementById('prevButton').addEventListener('click', prevTrack);
+      const prevBtn = document.getElementById('prevButton');
+      if (prevBtn) {
+        const newPrevBtn = prevBtn.cloneNode(true);
+        prevBtn.parentNode.replaceChild(newPrevBtn, prevBtn);
+        document.getElementById('prevButton').addEventListener('click', prevTrack);
+      }
       
       // 下一曲按钮
-      document.getElementById('nextButton').addEventListener('click', nextTrack);
+      const nextBtn = document.getElementById('nextButton');
+      if (nextBtn) {
+        const newNextBtn = nextBtn.cloneNode(true);
+        nextBtn.parentNode.replaceChild(newNextBtn, nextBtn);
+        document.getElementById('nextButton').addEventListener('click', nextTrack);
+      }
       
       // 可视化按钮
-      document.getElementById('visualizeButton').addEventListener('click', function() {
-        toggleVisualization();
-        this.classList.toggle('active');
-        createParticles(this);
-      });
+      const visualizeBtn = document.getElementById('visualizeButton');
+      if (visualizeBtn) {
+        const newVisualizeBtn = visualizeBtn.cloneNode(true);
+        visualizeBtn.parentNode.replaceChild(newVisualizeBtn, visualizeBtn);
+        document.getElementById('visualizeButton').addEventListener('click', function() {
+          toggleVisualization();
+          this.classList.toggle('active');
+          createParticles(this);
+        });
+      }
       
       // 返回按钮
-      backButton.addEventListener('click', function() {
-        createParticles(this);
-        console.log('返回上一页');
-        history.back();
-      });
+      if (backButton) {
+        const newBackButton = backButton.cloneNode(true);
+        backButton.parentNode.replaceChild(newBackButton, backButton);
+        document.getElementById('backButton').addEventListener('click', function() {
+          createParticles(this);
+          console.log('返回上一页');
+          history.back();
+        });
+      }
       
       // 为所有操作按钮添加粒子效果
       document.querySelectorAll('.action-button').forEach(button => {
-        button.addEventListener('click', function() {
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+        newButton.addEventListener('click', function() {
           createParticles(this);
         });
       });
@@ -1032,7 +1137,7 @@
       }
     }
     
-    // 播放/暂停切换 - 优化版 (使用全局控制函数)
+    // 播放/暂停切换 - 进一步简化和强化
     function togglePlay() {
       console.log("★★★ togglePlay被调用 ★★★");
       
@@ -1042,13 +1147,14 @@
         console.log("播放状态切换为:", isPlaying);
         
         // 播放按钮有明显视觉反馈
-        playButton.classList.add('active-effect');
+        const playBtn = document.getElementById('playButton');
+        playBtn.classList.add('active-effect');
         setTimeout(() => {
-          playButton.classList.remove('active-effect');
+          playBtn.classList.remove('active-effect');
         }, 300);
         
         // 在按钮周围创建更多粒子效果
-        createEnhancedParticles(playButton, isPlaying);
+        createEnhancedParticles(playBtn, isPlaying);
         
         // 处理两种状态
         if (isPlaying) {
@@ -1056,29 +1162,52 @@
           console.log("切换到播放状态 - 开始旋转唱片");
           
           // 1. 图标切换为暂停
-          playIcon.className = 'fas fa-pause';
+          const playIconEl = document.getElementById('playIcon');
+          playIconEl.className = 'fas fa-pause';
           
-          // 2. 使用全局函数控制唱片旋转
-          console.log("调用rotateVinyl(true) - 开始旋转");
-          // 确保rotateVinyl函数存在并且可调用
-          if (typeof rotateVinyl === 'function') {
-            rotateVinyl(true);
-          } else {
-            console.error("rotateVinyl函数不可用");
-            // 备用方案：直接设置样式
-            vinyl.classList.add('playing');
-            vinyl.style.animation = 'rotateDisk 20s linear infinite';
-            vinyl.style.animationPlayState = 'running';
+          // 2. 控制唱片旋转 - 多重保障
+          console.log("开始旋转唱片 - 多重方法尝试");
+          
+          // 方法1: 使用页面内定义的函数（首选）
+          directRotateVinyl(true);
+          
+          // 方法2: 尝试使用外部脚本函数（备用）
+          try {
+            if (typeof window.rotateVinyl === 'function') {
+              window.rotateVinyl(true);
+            }
+          } catch (err) {
+            console.warn("外部rotateVinyl调用失败:", err);
+          }
+          
+          // 方法3: 直接操作DOM（终极保障）
+          try {
+            const vinylEl = document.getElementById('vinyl');
+            if (vinylEl) {
+              vinylEl.classList.add('playing');
+              vinylEl.style.setProperty('animation', 'rotateDisk 20s linear infinite', 'important');
+              vinylEl.style.setProperty('animation-play-state', 'running', 'important');
+              // 强制重新计算样式
+              void vinylEl.offsetWidth;
+            }
+          } catch (domErr) {
+            console.error("直接DOM操作失败:", domErr);
           }
           
           // 添加唱片开始旋转的粒子效果
           setTimeout(() => {
-            createCircleParticles(vinyl, 'gold');
+            const vinylEl = document.getElementById('vinyl');
+            if (vinylEl) {
+              createCircleParticles(vinylEl, 'gold');
+            }
           }, 100);
           
           // 3. 唱针放下
-          tonearm.style.transform = 'rotate(0deg)';
-          tonearm.classList.add('playing');
+          const tonearmEl = document.getElementById('tonearm');
+          if (tonearmEl) {
+            tonearmEl.style.transform = 'rotate(0deg)';
+            tonearmEl.classList.add('playing');
+          }
           
           // 4. 开始进度更新
           startProgress();
@@ -1093,44 +1222,70 @@
           console.log("切换到暂停状态 - 停止旋转唱片");
           
           // 1. 图标切换为播放
-          playIcon.className = 'fas fa-play';
+          const playIconEl = document.getElementById('playIcon');
+          playIconEl.className = 'fas fa-play';
           
-          // 2. 使用全局函数控制唱片旋转
-          console.log("调用rotateVinyl(false) - 停止旋转");
-          // 确保rotateVinyl函数存在并且可调用
-          if (typeof rotateVinyl === 'function') {
-            rotateVinyl(false);
-          } else {
-            console.error("rotateVinyl函数不可用");
-            // 备用方案：直接设置样式
-            vinyl.classList.remove('playing');
-            vinyl.style.animation = 'none';
-            vinyl.style.transform = 'rotate(0deg)';
+          // 2. 控制唱片旋转 - 多重保障
+          console.log("停止旋转唱片 - 多重方法尝试");
+          
+          // 方法1: 使用页面内定义的函数（首选）
+          directRotateVinyl(false);
+          
+          // 方法2: 尝试使用外部脚本函数（备用）
+          try {
+            if (typeof window.rotateVinyl === 'function') {
+              window.rotateVinyl(false);
+            }
+          } catch (err) {
+            console.warn("外部rotateVinyl调用失败:", err);
+          }
+          
+          // 方法3: 直接操作DOM（终极保障）
+          try {
+            const vinylEl = document.getElementById('vinyl');
+            if (vinylEl) {
+              vinylEl.classList.remove('playing');
+              vinylEl.style.setProperty('animation', 'none', 'important');
+              vinylEl.style.setProperty('animation-play-state', 'paused', 'important');
+              vinylEl.style.setProperty('transform', 'rotate(0deg)', 'important');
+            }
+          } catch (domErr) {
+            console.error("直接DOM操作失败:", domErr);
           }
           
           // 添加唱片停止旋转的粒子效果
           setTimeout(() => {
-            createCircleParticles(vinyl, 'white');
+            const vinylEl = document.getElementById('vinyl');
+            if (vinylEl) {
+              createCircleParticles(vinylEl, 'white');
+            }
           }, 100);
           
           // 3. 唱针抬起
-          tonearm.style.transform = 'rotate(-30deg)';
-          tonearm.classList.remove('playing');
+          const tonearmEl = document.getElementById('tonearm');
+          if (tonearmEl) {
+            tonearmEl.style.transform = 'rotate(-30deg)';
+            tonearmEl.classList.remove('playing');
+          }
           
           // 4. 停止进度更新
           stopProgress();
         }
         
-        // 确保检查并报告唱片状态
+        // 确保检查并报告唱片状态 - 延长等待时间确保样式已应用
         setTimeout(() => {
-          const computedStyle = window.getComputedStyle(vinyl);
-          console.log("唱片样式检查:", {
-            "animation": computedStyle.animation,
-            "animationPlayState": computedStyle.animationPlayState,
-            "transform": computedStyle.transform,
-            "playing类": vinyl.classList.contains('playing')
-          });
-        }, 50);
+          const vinylEl = document.getElementById('vinyl');
+          if (vinylEl) {
+            const computedStyle = window.getComputedStyle(vinylEl);
+            console.log("唱片样式最终检查:", {
+              "类名": vinylEl.className,
+              "内联样式": vinylEl.style.cssText,
+              "animation": computedStyle.animation,
+              "animationPlayState": computedStyle.animationPlayState,
+              "transform": computedStyle.transform
+            });
+          }
+        }, 100);
       } catch (error) {
         console.error("togglePlay执行出错:", error);
       }
@@ -1252,7 +1407,7 @@
       }
       
       // 使用直接控制函数停止唱片旋转
-      rotateVinyl(false);
+      directRotateVinyl(false);
       tonearm.classList.remove('playing');
       
       setTimeout(() => {
@@ -1275,7 +1430,7 @@
       }
       
       // 使用直接控制函数停止唱片旋转
-      rotateVinyl(false);
+      directRotateVinyl(false);
       tonearm.classList.remove('playing');
       
       setTimeout(() => {
@@ -1373,6 +1528,11 @@
     // 页面加载完成后初始化
     document.addEventListener('DOMContentLoaded', function() {
       console.log("页面加载完成，初始化播放器...");
+      
+      // 立即添加旋转动画样式
+      addRotateDiskAnimationStyle();
+      
+      // 初始化播放器
       initPlayer();
       
       // 更新状态栏时间
@@ -1381,48 +1541,49 @@
       // 每分钟更新一次状态栏时间
       setInterval(updateStatusTime, 60000);
       
-      // 直接在JS中添加播放按钮点击事件
-      document.getElementById('playButton').addEventListener('click', function(event) {
-        console.log("播放按钮被点击");
-        
-        // 阻止事件冒泡和默认行为
-        event.preventDefault();
-        event.stopPropagation();
-        
-        // 添加按钮动效
-        this.classList.add('active-effect');
-        setTimeout(() => {
-          this.classList.remove('active-effect');
-        }, 300);
-        
-        // 直接调用togglePlay
-        togglePlay();
-      });
+      // 确保旋转函数在window上可用
+      window.rotateVinyl = window.rotateVinyl || directRotateVinyl;
       
-      // 对唱片添加直接点击测试 - 改用全局控制函数
-      document.getElementById('vinyl').addEventListener('click', function() {
-        console.log("唱片被点击，测试旋转");
-        // 使用全局控制函数，确保与其他控制逻辑一致
-        if (this.classList.contains('playing')) {
-          rotateVinyl(false); // 停止旋转
-          console.log("唱片停止旋转");
-        } else {
-          rotateVinyl(true); // 开始旋转
-          console.log("唱片开始旋转");
-        }
-      });
-      
-      // 检查唱片元素是否正确应用了样式
+      // 对唱片添加直接点击测试
       const vinylEl = document.getElementById('vinyl');
-      console.log("唱片初始状态:", {
-        "元素存在": !!vinylEl,
-        "样式": vinylEl ? window.getComputedStyle(vinylEl) : null,
-        "动画": vinylEl ? window.getComputedStyle(vinylEl).animation : null,
-        "动画状态": vinylEl ? window.getComputedStyle(vinylEl).animationPlayState : null
-      });
+      if (vinylEl) {
+        // 移除现有事件
+        const newVinylEl = vinylEl.cloneNode(true);
+        vinylEl.parentNode.replaceChild(newVinylEl, vinylEl);
+        
+        // 添加新事件
+        document.getElementById('vinyl').addEventListener('click', function() {
+          console.log("唱片被点击，测试旋转");
+          
+          // 使用内部函数直接控制旋转
+          if (this.classList.contains('playing')) {
+            directRotateVinyl(false);
+            isPlaying = false;
+            document.getElementById('playIcon').className = 'fas fa-play';
+          } else {
+            directRotateVinyl(true);
+            isPlaying = true;
+            document.getElementById('playIcon').className = 'fas fa-pause';
+          }
+        });
+      }
       
       // 设置初始主题
       setupTheme();
+      
+      // 测试唱片旋转
+      setTimeout(() => {
+        console.log("测试唱片旋转功能");
+        const testVinyl = document.getElementById('vinyl');
+        if (testVinyl) {
+          console.log("旋转前状态:", window.getComputedStyle(testVinyl).animation);
+          directRotateVinyl(true);
+          setTimeout(() => {
+            console.log("旋转后状态:", window.getComputedStyle(testVinyl).animation);
+            directRotateVinyl(false);
+          }, 1000);
+        }
+      }, 1500);
     });
     
     // 主题切换相关功能
@@ -1433,17 +1594,26 @@
       // 从localStorage读取主题设置
       const savedTheme = localStorage.getItem('yayun-theme');
       
+      // 检查当前主题状态
+      const currentIsDark = document.body.classList.contains('dark');
+      console.log("当前主题状态:", currentIsDark ? "深色" : "浅色");
+      
       // 监听系统主题变化
       const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
       
       // 如果在iframe中，优先采用父窗口的主题设置
       if (isInIframe) {
         try {
+          // 尝试从父窗口获取主题设置
           const parentIsDark = window.parent.document.documentElement.classList.contains('dark');
           console.log("检测到在iframe中，使用父窗口主题:", parentIsDark ? "深色" : "浅色");
-          toggleTheme(parentIsDark);
+          
+          // 只有当当前主题与父窗口主题不一致时才切换
+          if (parentIsDark !== currentIsDark) {
+            toggleTheme(parentIsDark);
+          }
         } catch (e) {
-          console.log("无法获取父窗口主题，使用本地设置");
+          console.warn("无法获取父窗口主题，使用本地设置:", e);
           // 如果有本地保存的主题设置，使用它
           if (savedTheme) {
             toggleTheme(savedTheme === 'dark');
@@ -1479,65 +1649,117 @@
           toggleTheme(event.data.isDark);
         }
       });
+      
+      // 设置主题切换按钮事件
+      const themeToggle = document.getElementById('theme-toggle');
+      if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+          console.log("点击主题切换按钮");
+          const newIsDark = toggleTheme();
+          
+          // 创建粒子效果
+          createEnhancedParticles(this, newIsDark);
+          
+          // 如果在iframe中，通知父窗口主题已变更
+          try {
+            if (isInIframe && window.parent) {
+              window.parent.postMessage({
+                type: 'themeChange',
+                isDark: newIsDark,
+                source: 'player'
+              }, '*');
+            }
+          } catch (e) {
+            console.warn("无法通知父窗口主题变更:", e);
+          }
+        });
+      }
     }
     
-    // 全局主题切换函数 - 可以被外部调用
+    // 全局主题切换函数 - 加强版
     window.toggleTheme = function(isDark) {
+      console.log("切换主题函数被调用，参数:", isDark);
+      
       const body = document.body;
       const statusBar = document.getElementById('status-bar');
+      const themeToggle = document.getElementById('theme-toggle');
+      const moonIcon = themeToggle ? themeToggle.querySelector('.fa-moon') : null;
+      const sunIcon = themeToggle ? themeToggle.querySelector('.fa-sun') : null;
       
-      // 如果是参数模式，则设置为指定主题
-      if (typeof isDark === 'boolean') {
-        const currentIsDark = body.classList.contains('dark');
-        if (isDark === currentIsDark) return; // 已经是指定模式，不做任何操作
-        
-        if (isDark) {
-          body.classList.add('dark');
-        } else {
-          body.classList.remove('dark');
-        }
-        
-        // 更新状态栏样式
-        if (statusBar) {
+      try {
+        // 函数以boolean参数调用时，设置指定主题
+        if (typeof isDark === 'boolean') {
+          console.log("设置主题为:", isDark ? "深色" : "浅色");
+          
+          // 设置body类
           if (isDark) {
-            statusBar.classList.remove('light');
-            statusBar.classList.add('dark');
-            statusBar.style.backgroundColor = 'rgba(30, 30, 30, 0.8)';
+            body.classList.add('dark');
           } else {
-            statusBar.classList.remove('dark');
-            statusBar.classList.add('light');
-            statusBar.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+            body.classList.remove('dark');
           }
-        }
-        
-        // 保存主题设置到localStorage
-        localStorage.setItem('yayun-theme', isDark ? 'dark' : 'light');
-        console.log("已保存主题设置:", isDark ? "深色" : "浅色");
-        
-        return isDark;
-      } 
-      // 如果是切换模式，则反转当前主题
-      else {
-        const isDarkNow = body.classList.toggle('dark');
-        
-        // 更新状态栏样式
-        if (statusBar) {
-          if (isDarkNow) {
-            statusBar.classList.remove('light');
-            statusBar.classList.add('dark');
-            statusBar.style.backgroundColor = 'rgba(30, 30, 30, 0.8)';
-          } else {
-            statusBar.classList.remove('dark');
-            statusBar.classList.add('light');
-            statusBar.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+          
+          // 更新图标显示
+          if (moonIcon && sunIcon) {
+            if (isDark) {
+              moonIcon.classList.add('hidden');
+              sunIcon.classList.remove('hidden');
+            } else {
+              moonIcon.classList.remove('hidden');
+              sunIcon.classList.add('hidden');
+            }
           }
+          
+          // 更新状态栏
+          if (statusBar) {
+            if (isDark) {
+              statusBar.classList.remove('light');
+              statusBar.classList.add('dark');
+              statusBar.style.backgroundColor = 'rgba(30, 30, 30, 0.8)';
+            } else {
+              statusBar.classList.remove('dark');
+              statusBar.classList.add('light');
+              statusBar.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+            }
+          }
+          
+          // 保存设置
+          localStorage.setItem('yayun-theme', isDark ? 'dark' : 'light');
+          console.log("主题已设置为:", isDark ? "深色" : "浅色");
+          
+          return isDark;
+        } 
+        // 无参数调用时，切换当前主题
+        else {
+          const isDarkNow = body.classList.toggle('dark');
+          console.log("主题已切换为:", isDarkNow ? "深色" : "浅色");
+          
+          // 更新图标显示
+          if (moonIcon && sunIcon) {
+            moonIcon.classList.toggle('hidden');
+            sunIcon.classList.toggle('hidden');
+          }
+          
+          // 更新状态栏
+          if (statusBar) {
+            if (isDarkNow) {
+              statusBar.classList.remove('light');
+              statusBar.classList.add('dark');
+              statusBar.style.backgroundColor = 'rgba(30, 30, 30, 0.8)';
+            } else {
+              statusBar.classList.remove('dark');
+              statusBar.classList.add('light');
+              statusBar.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+            }
+          }
+          
+          // 保存设置
+          localStorage.setItem('yayun-theme', isDarkNow ? 'dark' : 'light');
+          
+          return isDarkNow;
         }
-        
-        // 保存主题设置到localStorage
-        localStorage.setItem('yayun-theme', isDarkNow ? 'dark' : 'light');
-        console.log("已切换并保存主题:", isDarkNow ? "深色" : "浅色");
-        
-        return isDarkNow;
+      } catch (error) {
+        console.error("主题切换出错:", error);
+        return body.classList.contains('dark');
       }
     };
     
@@ -1556,4 +1778,3 @@
   </script>
 </body>
 </html>
-    // 注意：rotateVinyl函数已移至单独的JS文件
