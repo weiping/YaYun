@@ -321,12 +321,26 @@
       <h1 class="page-title text-3xl mb-4">搜索</h1>
       
       <!-- 搜索框 -->
-      <div class="search-bar">
-        <input type="text" id="search-input" class="search-input" placeholder="搜索音乐、歌单、艺术家..." autocomplete="off">
-        <i class="fas fa-search search-icon"></i>
-        <div class="clear-search" id="clear-search">
+      <div class="search-bar mx-5 mb-6">
+        <i class="search-icon fas fa-search text-sm"></i>
+        <input type="text" class="search-input" placeholder="搜索音乐、专辑、艺术家..." id="searchInput">
+        <div class="clear-search" id="clearSearch">
           <i class="fas fa-times text-xs"></i>
         </div>
+      </div>
+      
+      <!-- 资料库入口 -->
+      <div class="px-5 mb-6">
+        <a href="library.html" class="block w-full bg-brand-50 rounded-xl p-4 flex items-center transition-all duration-300 hover:shadow-md" style="background-color: rgba(139, 0, 0, 0.05);">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center mr-3" style="background-color: rgba(139, 0, 0, 0.1);">
+            <i class="fas fa-book text-lg" style="color: var(--brand-color);"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="font-medium text-base">音乐资料库</h3>
+            <p class="text-sm opacity-70">浏览完整的乐曲分类与收藏</p>
+          </div>
+          <i class="fas fa-chevron-right opacity-50"></i>
+        </a>
       </div>
       
       <!-- 搜索建议面板 (默认隐藏) -->
@@ -337,21 +351,36 @@
 
     <!-- 主要内容区域 -->
     <div id="main-content">
-      <!-- 分类浏览 -->
-      <div class="px-5 mb-8">
-        <h2 class="text-xl font-semibold mb-4">分类浏览</h2>
+      <!-- 音乐浏览区 -->
+      <div class="px-5 mb-4">
+        <h2 class="text-base font-semibold mb-3">浏览分类</h2>
         <div class="grid grid-cols-2 gap-4">
-          <div class="category-card h-36" style="background-image: url(https://images.unsplash.com/photo-1465847899084-d164df4dedc6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80)" onclick="createParticleEffect(event)">
-            <div class="category-overlay">作曲家</div>
+          <!-- 资料库 -->
+          <div class="category-card h-20" onclick="location.href='library.html'" style="background-image: url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=800&q=60');">
+            <div class="category-overlay">
+              <span class="text-lg font-semibold">资料库</span>
+            </div>
           </div>
-          <div class="category-card h-36" style="background-image: url(https://images.unsplash.com/photo-1558584673-c834fb1cc3ca?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80)" onclick="createParticleEffect(event)">
-            <div class="category-overlay">乐器</div>
+          
+          <!-- 作曲家 -->
+          <div class="category-card h-20" style="background-image: url('https://images.unsplash.com/photo-1507838153414-b4b713384a76?auto=format&fit=crop&w=800&q=60');">
+            <div class="category-overlay">
+              <span class="text-lg font-semibold">作曲家</span>
+            </div>
           </div>
-          <div class="category-card h-36" style="background-image: url(https://images.unsplash.com/photo-1507838153414-b4b713384a76?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80)" onclick="createParticleEffect(event)">
-            <div class="category-overlay">时期</div>
+          
+          <!-- 时期 -->
+          <div class="category-card h-20" style="background-image: url('https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=800&q=60');">
+            <div class="category-overlay">
+              <span class="text-lg font-semibold">时期</span>
+            </div>
           </div>
-          <div class="category-card h-36" style="background-image: url(https://images.unsplash.com/photo-1514119412350-e174d90d280e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80)" onclick="createParticleEffect(event)">
-            <div class="category-overlay">风格</div>
+          
+          <!-- 乐器 -->
+          <div class="category-card h-20" style="background-image: url('https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?auto=format&fit=crop&w=800&q=60');">
+            <div class="category-overlay">
+              <span class="text-lg font-semibold">乐器</span>
+            </div>
           </div>
         </div>
       </div>
@@ -515,8 +544,8 @@
 
   <script>
     // 搜索相关变量
-    const searchInput = document.getElementById('search-input');
-    const clearSearchBtn = document.getElementById('clear-search');
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearch');
     const searchSuggestions = document.getElementById('search-suggestions');
     const mainContent = document.getElementById('main-content');
     const searchResults = document.getElementById('search-results');

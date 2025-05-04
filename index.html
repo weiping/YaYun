@@ -7,6 +7,11 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="css/index.css">
+  <!-- 添加markdown渲染库 -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- 添加Prism.js用于代码高亮 -->
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-okaidia.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600&family=SF+Pro+Text:wght@400;500&family=New+York:wght@400;500&display=swap');
     
@@ -82,6 +87,154 @@
     
     .theme-toggle.animate .icon {
       animation: spin 0.5s ease-in-out;
+    }
+    
+    /* 重置Markdown模态框样式 - 绝对基础版 */
+    .md-modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      overflow: hidden;
+    }
+    
+    .md-modal-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white; /* 固定白色背景 */
+      color: black; /* 固定黑色文字 */
+      width: 90%;
+      max-width: 800px;
+      height: 80%;
+      max-height: 600px; /* 使用固定像素高度 */
+      margin: 0;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden; /* 防止内容溢出 */
+    }
+    
+    /* 修复深色模式 */
+    html.dark .md-modal-content {
+      background-color: #222;
+      color: white;
+    }
+    
+    .md-modal-header {
+      flex: 0 0 50px; /* 设置固定高度 */
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #ddd;
+      background-color: white; /* 固定白色背景 */
+      z-index: 2; /* 确保在内容之上 */
+    }
+    
+    html.dark .md-modal-header {
+      background-color: #222;
+      border-bottom-color: #444;
+    }
+    
+    .md-modal-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .md-close {
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    html.dark .md-close {
+      background-color: #333;
+    }
+    
+    .md-modal-body {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto !important; /* 强制允许滚动 */
+      -webkit-overflow-scrolling: touch; /* iOS平滑滚动 */
+      overflow-x: hidden;
+    }
+
+    /* 强制滚动条始终显示 */
+    .md-modal-body::-webkit-scrollbar {
+      width: 14px;
+      background-color: #f5f5f5;
+      display: block !important;
+    }
+    
+    .md-modal-body::-webkit-scrollbar-thumb {
+      background-color: #8B0000;
+      border-radius: 10px;
+      border: 4px solid #f5f5f5;
+    }
+    
+    html.dark .md-modal-body::-webkit-scrollbar {
+      background-color: #333;
+    }
+    
+    html.dark .md-modal-body::-webkit-scrollbar-thumb {
+      border: 4px solid #333;
+    }
+    
+    /* 禁用背景滚动 */
+    body.modal-open {
+      overflow: hidden;
+    }
+    
+    /* 简化Markdown样式 */
+    .markdown-body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+    }
+    
+    .markdown-body h1 {
+      font-size: 24px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .markdown-body h2 {
+      font-size: 20px;
+      margin: 20px 0 10px;
+    }
+    
+    .markdown-body p {
+      margin-bottom: 16px;
+    }
+    
+    html.dark .markdown-body h1 {
+      border-bottom-color: #444;
+    }
+    
+    /* 加载状态 */
+    .markdown-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #8B0000;
     }
   </style>
 </head>
@@ -182,12 +335,12 @@
         </div>
       </div>
 
-      <!-- 播放页 -->
+      <!-- 播放页面 -->
       <div class="device-wrapper">
-        <h2 class="device-title">播放</h2>
+        <h2 class="device-title">播放页面</h2>
         <div class="device-frame">
           <div class="device-screen-container">
-            <iframe src="pages/player.html" class="device-screen" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
+            <iframe src="pages/player.html" class="device-screen" onload="this.contentWindow.document.body.style.overflow='hidden'"></iframe>
           </div>
         </div>
         <div class="page-link">
@@ -208,6 +361,19 @@
         </div>
       </div>
       
+      <!-- 资料库页面 -->
+      <div class="device-wrapper">
+        <h2 class="device-title">资料库</h2>
+        <div class="device-frame">
+          <div class="device-screen-container">
+            <iframe src="pages/library.html" class="device-screen" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
+          </div>
+        </div>
+        <div class="page-link">
+          <a href="docs/pages/library.md" target="_blank" class="doc-link">查看设计文档</a>
+        </div>
+      </div>
+      
       <!-- 我的页面 -->
       <div class="device-wrapper">
         <h2 class="device-title">我的</h2>
@@ -218,6 +384,19 @@
         </div>
         <div class="page-link">
           <a href="docs/pages/profile.md" target="_blank" class="doc-link">查看设计文档</a>
+        </div>
+      </div>
+      
+      <!-- 设置页面 -->
+      <div class="device-wrapper">
+        <h2 class="device-title">设置</h2>
+        <div class="device-frame">
+          <div class="device-screen-container">
+            <iframe src="pages/settings.html" class="device-screen" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
+          </div>
+        </div>
+        <div class="page-link">
+          <a href="docs/pages/settings.md" target="_blank" class="doc-link">查看设计文档</a>
         </div>
       </div>
     </div>
@@ -264,6 +443,23 @@
     </footer>
   </div>
   
+  <!-- 简化Markdown模态框 -->
+  <div id="markdownModal" class="md-modal">
+    <div class="md-modal-content">
+      <div class="md-modal-header">
+        <h3 id="mdModalTitle" class="md-modal-title">文档标题</h3>
+        <div class="md-close" onclick="closeMarkdownModal()">×</div>
+      </div>
+      <div class="md-modal-body">
+        <div id="markdownContent" class="markdown-body">
+          <div class="markdown-loading">
+            <i class="fas fa-spinner fa-spin fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // 主题切换功能
     const themeToggle = document.getElementById('themeToggle');
@@ -379,6 +575,800 @@
         }
       });
     });
+    
+    // Markdown相关功能
+    const modal = document.getElementById('markdownModal');
+    const modalTitle = document.getElementById('mdModalTitle');
+    const markdownContent = document.getElementById('markdownContent');
+    
+    // 文档内联内容映射 - 为常用文档提供内联备选内容
+    const inlineDocuments = {
+      'docs/design.md': `# 雅韵(YaYun) UI/UX设计规划
+
+## 设计理念
+雅韵旨在为经典音乐爱好者提供高品质的聆听体验，设计融合现代UI与古典音乐的优雅氛围。
+
+## 色彩系统
+- 主色调：深红(#8B0000)与纯白(#FFFFFF)
+- 辅助色：金色(#D4AF37)点缀
+- 层次感：通过不同透明度创建UI层次
+
+## 排版规范
+- 主要文字：无衬线字体，保证良好可读性
+- 音乐信息：衬线字体，增强古典感
+- 层级分明：标题、副标题、正文、标签的清晰层级
+
+## 设备规格
+基于iPhone 15 Pro(146.6 x 70.6 x 8.25mm)物理尺寸设计，包含钛金属边框、灵动岛等特征。
+
+## 组件系统
+1. 导航栏：位于底部，提供主要功能入口
+2. 状态栏：顶部系统状态显示
+3. 播放条：导航栏上方，显示当前播放内容
+4. 专辑卡片：展示专辑封面和基本信息
+5. 歌单卡片：展示歌单封面和信息
+6. 列表项：统一的曲目信息展示
+
+## 交互规范
+- 点击反馈：所有可交互元素有明确视觉反馈
+- 手势操作：支持滑动、点击等常见手势
+- 动效设计：平滑且有意义的过渡动画
+- 深色模式：完整支持深色/浅色模式切换
+
+## 页面布局
+- 首页：轮播图+专辑推荐+歌单推荐
+- 发现页：个性化推荐+排行榜
+- 资料库：多维度分类浏览
+- 搜索页：搜索栏+历史记录+分类
+- 详情页：统一的信息展示和曲目列表
+- 播放页：黑胶唱片视觉效果为中心`,
+
+      'docs/pages/home.md': `# 首页设计文档
+
+## 设计目标
+首页作为用户进入应用的第一个界面，需要简洁明了地展示核心内容，吸引用户探索。
+
+## 页面组成
+1. **轮播图区域**：展示精选内容和最新推荐
+2. **最新专辑**：横向滚动的专辑卡片
+3. **热门歌单**：用户喜爱的精选歌单
+4. **主题专区**：按音乐类型/主题分类的专辑推荐
+
+## 交互设计
+- 轮播图支持左右滑动和自动轮播
+- 专辑卡片点击进入详情页
+- 下拉刷新更新内容
+
+## 视觉规范
+- **字体**：标题使用22px粗体，副标题16px中等粗细
+- **间距**：内容区块间距24px，卡片间距16px
+- **卡片**：圆角12px，轻微阴影效果
+- **配色**：深红色强调，白色背景提供对比
+
+## 深色模式
+- 背景色调整为深灰(#121212)
+- 文字颜色调整为浅灰(#E0E0E0)
+- 保持关键元素的识别度和对比度
+
+## 适配考虑
+- 根据屏幕尺寸调整轮播图高度
+- 小屏幕设备上减少每行卡片数量
+- 旋转屏幕时重排布局，保持内容可访问性`,
+
+      'docs/pages/player.md': `# 播放页面设计文档
+
+## 设计理念
+播放页面是应用中最核心的交互界面，通过模拟黑胶唱片视觉效果，为用户提供沉浸式的音乐体验。
+
+## 页面组成
+1. **黑胶唱片区域**：展示当前播放专辑封面，以唱片形式旋转
+2. **唱针元素**：随播放状态移动的唱针图形
+3. **控制区域**：播放、暂停、上下曲等控制按钮
+4. **曲目信息**：显示当前播放的曲目名称、专辑、艺术家
+5. **进度条**：显示播放进度，支持拖动调整
+6. **功能按钮**：收藏、分享、音质选择等辅助功能
+
+## 交互特性
+- 唱片随播放状态旋转或停止
+- 唱针在播放/暂停时移动
+- 左右滑动切换曲目
+- 点击封面暂停/播放
+- 向下滑动返回上一页
+- 双指缩放调整音量
+
+## 视觉效果
+- 唱片纹理细节，包含光泽和阴影
+- 播放时的环形粒子动画
+- 按钮点击的波纹效果
+- 高斯模糊背景，营造沉浸感
+
+## 深色/浅色模式
+- 深色模式：黑色背景，金色和深红色突出元素
+- 浅色模式：白色背景，保持黑胶唱片的黑色特征
+
+## 音质选择功能
+- 标准音质：默认选项，平衡音质和数据消耗
+- 高品质：更高比特率，适合WiFi环境
+- 无损音质：最佳音质体验，仅限付费用户`,
+
+      'docs/pages/library.md': `# 资料库页面设计文档
+
+## 设计目标
+资料库页面旨在提供多维度的音乐分类浏览系统，帮助用户按不同分类方式探索音乐内容。
+
+## 页面组成
+1. **分类导航**：时期、作曲家、乐器、风格等主要分类标签
+2. **高级筛选区**：多条件组合过滤选项
+3. **内容展示区**：根据当前选择的分类显示相应内容
+4. **推荐内容**：基于用户兴趣的精选推荐
+
+## 分类维度
+- **时期**：巴洛克、古典主义、浪漫主义、现代等
+- **作曲家**：按姓名首字母或国籍分组
+- **乐器**：钢琴、小提琴、大提琴、管弦乐等
+- **风格**：室内乐、交响乐、协奏曲、奏鸣曲等
+- **难度**：入门、中级、高级（针对学习者）
+
+## 交互设计
+- 标签切换无缝过渡动画
+- 筛选条件组合实时反馈
+- 支持多选筛选和条件保存
+- 长按内容提供快速操作菜单
+
+## 视觉规范
+- 分类标签使用圆角矩形，选中状态突出显示
+- 内容卡片根据分类类型使用不同布局
+- 时期分类使用时间轴视觉元素
+- 作曲家分类使用头像+简介布局
+
+## 深色模式适配
+- 保持类别色彩在深色背景下的辨识度
+- 调整筛选区域对比度，确保可读性
+- 卡片边框和阴影效果适应深色环境
+
+## 用户体验优化
+- 记住用户上次浏览的分类和筛选条件
+- 支持用户创建自定义分类和收藏项
+- 提供编辑模式重排分类顺序`,
+
+      'docs/pages/search.md': `# 搜索页面设计文档
+
+## 设计目标
+搜索页面是用户快速查找特定音乐内容的入口，设计重点在于提供高效、精准的搜索体验和丰富的分类浏览选项。
+
+## 页面组成
+1. **搜索栏**：突出的搜索输入框，带清除按钮和语音输入选项
+2. **搜索历史**：展示用户近期搜索记录，方便快速重复查询
+3. **热搜榜**：显示当前流行搜索词，帮助用户发现热门内容
+4. **分类浏览**：提供多维度的分类入口，如作曲家、时期、乐器等
+
+## 交互设计
+- 搜索栏获得焦点时键盘自动弹出
+- 输入时实时显示搜索建议
+- 点击搜索历史或热搜条目直接执行搜索
+- 长按历史记录可删除单条记录
+- 下拉刷新更新热搜榜
+
+## 视觉规范
+- 搜索栏使用圆角矩形设计，轻微阴影强调
+- 历史记录和热搜条目使用简洁的列表样式
+- 分类浏览区使用图文结合的卡片布局
+- 使用轻微的分隔线区分不同内容区域
+
+## 搜索结果页面
+- 结果分类：曲目、专辑、艺术家、歌单等标签分类
+- 结果排序：相关度、发布时间、热度等多种排序选项
+- 筛选功能：支持按演奏者、时长、风格等条件筛选
+- 预览功能：长按结果项可预览播放
+
+## 深色模式适配
+- 搜索栏背景颜色调整为深色背景下的中性色
+- 确保搜索文本与背景的对比度符合可读性标准
+- 调整图片和文字样式以适应深色环境
+
+## 性能优化
+- 搜索输入防抖动处理，降低搜索请求频率
+- 搜索结果分页加载，提升大量结果展示效率
+- 缓存常用搜索结果，加快重复搜索响应速度`,
+
+      'docs/pages/discover.md': `# 发现页面设计文档
+
+## 设计目标
+发现页面是用户探索新音乐的主要入口，通过个性化推荐和多元化内容展示，激发用户的音乐探索欲望。
+
+## 页面组成
+1. **个性化推荐**：基于用户收听习惯的智能推荐内容
+2. **热门排行**：经典音乐热度排行榜，分为不同类别
+3. **主题专区**：基于特定主题（如作曲家、时期、场景）策划的音乐合集
+4. **新品首发**：最新上架的专辑和演奏版本
+
+## 交互设计
+- 顶部标签栏支持左右滑动切换不同内容分区
+- 推荐内容卡片支持左右滑动浏览
+- 下拉刷新更新全部内容
+- 上滑加载更多历史内容
+
+## 视觉规范
+- 主题卡片使用大图展示，配以优雅的排版
+- 排行榜项目附带排名变化指示
+- 新品首发添加"新"标签视觉提示
+- 个性化推荐区域添加柔和的品牌色背景
+
+## 内容更新策略
+- 每日更新个性化推荐内容
+- 每周更新热门排行榜数据
+- 定期更新主题专区内容
+- 实时同步新品首发信息
+
+## 深色模式适配
+- 保持专辑封面原有颜色，确保艺术品展示效果
+- 调整卡片背景和文字颜色，符合深色模式视觉习惯
+- 轻微降低图片饱和度，减少视觉刺激
+
+## 算法推荐逻辑
+- 结合用户历史收听数据和偏好设置
+- 考虑音乐风格相似性和多样性平衡
+- 根据季节、时间等环境因素调整推荐内容
+- 引入音乐专家策划的品质内容`,
+
+      'docs/pages/album.md': `# 专辑详情页设计文档
+
+## 设计目标
+专辑详情页以直观、优雅的方式展示专辑信息，提供沉浸式的浏览体验，同时为用户提供丰富的交互选项。
+
+## 页面组成
+1. **专辑封面**：高质量大图展示，支持视差滚动效果
+2. **基本信息**：专辑名称、艺术家、发行年份、风格类型等
+3. **曲目列表**：完整的曲目信息，包含时长和作曲家
+4. **专辑介绍**：丰富的背景信息、录制细节和历史意义
+5. **相关专辑**：同一艺术家或相似风格的其他专辑推荐
+
+## 交互设计
+- 封面区域支持下拉返回上一页
+- 点击曲目直接播放，长按显示更多操作
+- 支持点击艺术家名称查看艺术家详情
+- 专辑封面随页面滚动产生视差效果
+- 顶部工具栏支持收藏、分享、下载等操作
+
+## 视觉规范
+- 专辑封面使用方形设计，保持原始比例
+- 基于专辑封面的主色调生成页面渐变背景
+- 字体层级清晰，突出专辑名称和艺术家信息
+- 曲目列表使用轻量设计，突出可播放状态
+
+## 扩展信息展示
+- 录音信息：指挥、乐团、录音师、录音场地等
+- 技术参数：采样率、位深度、录制技术等
+- 获奖情况：格莱美、留声机大奖等荣誉记录
+- 专业评价：音乐评论家的评价和星级评分
+
+## 深色模式适配
+- 保持专辑封面原有色彩，确保艺术展示效果
+- 背景渐变色调整为更低饱和度版本
+- 文字和控件颜色调整以提供足够对比度
+
+## 性能优化
+- 图片懒加载和渐进式加载
+- 曲目列表分页加载（适用于曲目较多的专辑）
+- 专辑信息预加载，确保快速响应`,
+
+      'docs/pages/playlist.md': `# 歌单详情页设计文档
+
+## 设计目标
+歌单详情页展示精心策划的音乐合集，既可能是官方编辑的主题歌单，也可能是用户自建的个性化收藏，设计上强调内容策划的整体性和情感氛围。
+
+## 页面组成
+1. **歌单封面**：代表歌单主题或氛围的图像，支持视差滚动
+2. **基本信息**：歌单名称、创建者、收藏数、更新时间等
+3. **歌单介绍**：主题说明、曲目选择逻辑、适用场景等
+4. **曲目列表**：包含曲目、演奏者、专辑等信息
+5. **相关歌单**：与当前歌单主题相关的其他推荐
+
+## 交互设计
+- 顶部提供播放全部、随机播放、收藏等快捷操作
+- 曲目支持拖拽排序（用户自建歌单）
+- 支持多选模式进行批量操作
+- 下拉封面区域返回上一页
+- 封面随滚动产生视差和渐变效果
+
+## 视觉规范
+- 歌单封面使用4:3比例设计，区别于专辑的方形封面
+- 根据封面提取主色调，生成页面顶部渐变背景
+- 使用"播放全部"按钮作为视觉焦点
+- 曲目列表设计简洁，突出序号和基本信息
+
+## 特色功能
+- 智能排序：按流行度、年代、音调等多种方式重排列表
+- 一键分享：生成精美的歌单海报便于社交分享
+- 下载管理：支持选定曲目或整个歌单的批量下载
+- 评论区：用户可分享对歌单的感受和补充推荐
+
+## 深色模式适配
+- 保持封面图片原有色彩，确保视觉表达
+- 降低页面背景渐变的饱和度
+- 提升文字和控件的对比度
+
+## 性能考虑
+- 大型歌单（>100首）采用虚拟列表技术
+- 图片资源懒加载和适当压缩
+- 滚动性能优化，避免渲染阻塞`,
+
+      'docs/pages/artist.md': `# 艺术家详情页设计文档
+
+## 设计目标
+艺术家详情页为用户提供关于音乐艺术家的全面信息，包括其生平、作品集以及艺术风格，设计上强调艺术性和文化深度，同时保持信息的可访问性。
+
+## 页面组成
+1. **艺术家头像**：高品质的艺术家肖像，支持视差滚动效果
+2. **基本信息**：姓名、生卒年月、国籍、主要乐器/职业等
+3. **生平简介**：艺术家生平、艺术成就和历史地位
+4. **作品集**：代表性专辑和作品展示，按时间线排列
+5. **相关艺术家**：同时期、同流派或合作过的艺术家推荐
+
+## 交互设计
+- 头像区支持下拉返回上一页
+- 作品集支持横向滚动浏览，点击进入专辑详情
+- 时间线式的生涯重要节点展示
+- 长按作品可快速预览播放
+- 关注按钮提供一键追踪艺术家动态的功能
+
+## 视觉规范
+- 艺术家头像使用圆形或圆角方形设计
+- 页面顶部采用艺术家相关的视觉元素创建氛围
+- 排版强调层次感，突出艺术家姓名和主要成就
+- 作品展示卡片设计统一，突出专辑艺术性
+
+## 内容深度
+- 艺术成就：获奖记录、重要演出、音乐贡献
+- 艺术风格：音乐特点、技术风格、艺术流派定位
+- 影响力：对后世音乐家的影响、历史地位评价
+- 轶事趣闻：艺术家生平中的趣事和鲜为人知的细节
+
+## 深色模式适配
+- 保持艺术家照片和作品封面的原色彩
+- 背景色采用深沉但有质感的暗色调
+- 文字和分隔元素采用恰当对比度的浅色调
+
+## 辅助功能
+- 提供艺术家作品的时间线视图切换
+- 支持按流派、形式(协奏曲、奏鸣曲等)筛选作品
+- 集成音乐百科资源，提供延伸阅读入口
+- 相关纪录片或演出视频资源链接`,
+
+      'docs/pages/settings.md': `# 设置页面设计文档
+
+## 设计目标
+设置页面为用户提供个性化应用体验的控制中心，设计上强调清晰的分类、直观的操作和即时的反馈，确保用户能够轻松找到并调整所需设置。
+
+## 页面组成
+1. **账号设置**：用户资料、登录状态、隐私控制等
+2. **播放设置**：音质选择、均衡器、音量控制等
+3. **应用设置**：主题切换、语言选择、通知管理等
+4. **下载管理**：存储位置、下载质量、网络限制等
+5. **关于信息**：版本、法律声明、帮助与反馈等
+
+## 交互设计
+- 使用分组列表清晰划分不同类别的设置项
+- 开关控件提供即时的视觉反馈
+- 复杂设置项点击后进入专门的设置详情页
+- 重要操作（如清除缓存）提供二次确认
+- 设置更改后立即生效并提供成功提示
+
+## 视觉规范
+- 每个设置组使用卡片式设计，增强视觉分组
+- 图标使用统一风格，增强识别度
+- 控件使用标准iOS设计语言，符合平台设计规范
+- 重要或常用设置项使用品牌色强调
+
+## 设置项详情
+- **音质设置**：标准、高品质、无损、自适应多级选择
+- **均衡器**：预设配置与10频段自定义调节
+- **下载管理**：WIFI限制、存储限额、自动下载规则
+- **隐私设置**：收听记录管理、第三方分享控制
+- **通知设置**：新专辑提醒、艺术家更新、系统通知
+
+## 深色模式适配
+- 设置卡片背景调整为深色渐变
+- 确保所有文本和控件有足够对比度
+- 开关和选择器适配深色主题样式
+- 保持品牌色在深色模式下的辨识度
+
+## 辅助功能
+- 所有设置项支持屏幕阅读器阅读
+- 提供搜索功能快速定位特定设置
+- 重置选项可恢复默认设置
+- 设置项变更提供清晰的视觉和触觉反馈`,
+
+      'docs/components/status-bar.md': `# 状态栏组件设计文档
+
+## 组件概述
+状态栏组件模拟iOS设备顶部的系统状态栏，显示时间、网络信号、电池等系统状态信息，以及灵动岛设计元素，是应用程序界面的重要组成部分。
+
+## 设计规范
+- **高度**：44px，符合iOS标准状态栏高度
+- **背景**：半透明毛玻璃效果（backdrop-filter: blur），增强层次感
+- **文字**：SF Pro Text字体，12px大小，保证清晰可读
+- **图标**：系统风格图标，保持与iOS界面一致性
+
+## 组件结构
+1. **左侧时间**：当前系统时间，格式为"HH:MM"
+2. **中央灵动岛**：药丸形状黑色区域，可容纳Face ID等传感器
+3. **右侧状态图标**：
+   - 信号强度指示器
+   - WiFi连接状态
+   - 电池电量（图标+百分比）
+
+## 交互特性
+- 状态栏固定在屏幕顶部，不随页面滚动
+- 灵动岛区域支持系统级交互（模拟）
+- 时间区域每分钟自动更新
+
+## 适配方案
+- **浅色/深色模式**：
+  - 浅色模式：白色半透明背景，黑色文字和图标
+  - 深色模式：黑色半透明背景，白色文字和图标
+- **响应式调整**：根据不同iPhone型号适配宽度
+
+## 实现细节
+- 使用CSS backdrop-filter实现毛玻璃效果
+- 使用SVG图标确保清晰度
+- JavaScript实时更新时间
+- CSS变量控制主题色彩切换
+
+## 使用指南
+- 组件应始终位于页面顶部
+- 避免在状态栏下方放置重要的交互元素
+- 确保页面主题变化时状态栏同步切换样式
+- 状态栏高度应计入页面内容的顶部边距`,
+
+      'docs/components/navigation-bar.md': `# 导航栏组件设计文档
+
+## 组件概述
+导航栏组件是应用程序的主要导航系统，位于屏幕底部，提供了主要功能区域的快速访问入口，设计符合iOS界面规范，同时融入应用的品牌特色。
+
+## 设计规范
+- **高度**：83px（包含49px导航区域和34px底部安全区）
+- **背景**：半透明毛玻璃效果（backdrop-filter: blur），增强层次感
+- **图标**：清晰可辨识的线性图标，突出当前激活项
+- **文字**：标签使用SF Pro Text字体，10px大小，保持简洁
+
+## 组件结构
+1. **导航项**：首页、发现、搜索、我的四个主要入口
+2. **底部手势条**：模拟iOS底部手势区域的指示条
+3. **激活状态**：当前页面对应的导航项使用品牌色高亮显示
+4. **粒子效果容器**：用于展示交互时的粒子动画效果
+
+## 交互特性
+- 点击导航项切换到对应页面
+- 当前激活项使用品牌红色(#8B0000)突出显示
+- 点击时产生微缩放反馈和粒子动画效果
+- 支持滑动手势在页面间切换（与导航栏联动）
+
+## 适配方案
+- **浅色/深色模式**：
+  - 浅色模式：白色半透明背景，深色图标和文字
+  - 深色模式：深色半透明背景，浅色图标和文字
+- **底部安全区**：自动适配不同iPhone机型的底部安全区高度
+
+## 实现细节
+- 使用CSS backdrop-filter实现毛玻璃效果
+- 使用Font Awesome图标库确保图标统一性
+- 使用CSS transitions实现平滑的状态过渡
+- JavaScript控制动态粒子效果生成
+
+## 动画效果
+- **粒子效果**：点击导航项时从点击位置扩散的彩色粒子
+- **缩放反馈**：点击时的轻微缩小效果(scale: 0.95)
+- **切换动画**：图标和文字颜色的渐变过渡(transition: 0.2s)
+
+## 使用指南
+- 确保导航项数量控制在4-5个之间，避免过度拥挤
+- 图标选择应直观表达功能，避免抽象难懂的图形
+- 导航栏应保持在应用全局一致的外观和行为
+- 与上方的播放条组件协调工作，避免视觉冲突`,
+
+      'docs/components/player-bar.md': `# 播放条组件设计文档
+
+## 组件概述
+播放条组件是应用中的迷你播放器，位于主界面底部导航栏上方，提供对当前播放内容的快速控制和基本信息展示，是连接完整播放页面和应用主界面的重要桥梁。
+
+## 设计规范
+- **高度**：60px，提供足够空间同时不过度占用屏幕
+- **背景**：半透明毛玻璃效果，与导航栏视觉协调
+- **字体**：曲目名称使用New York字体(斜体)，艺术家名称使用SF Pro Text
+- **布局**：左侧封面，中间信息，右侧控制按钮的三段式布局
+
+## 组件结构
+1. **专辑封面**：当前播放曲目的专辑封面缩略图
+2. **曲目信息**：显示当前播放的曲目名称和艺术家
+3. **控制按钮**：提供播放/暂停和下一曲功能
+4. **进度条**：底部细线显示当前播放进度
+5. **滑动容器**：支持左右滑动切换曲目的容器
+
+## 交互特性
+- 整体点击跳转到完整播放页面
+- 播放/暂停按钮控制当前播放状态
+- 下一曲按钮切换到队列中的下一首
+- 左右滑动可以切换上/下一曲
+- 有音乐播放时显示，无播放时隐藏
+
+## 适配方案
+- **浅色/深色模式**：
+  - 浅色模式：白色半透明背景，深色文字
+  - 深色模式：深色半透明背景，浅色文字
+- **动态高度**：播放控制条可以平滑展开/收起
+
+## 动画效果
+- **滑动切换**：左右滑动时的平滑过渡动画
+- **显示/隐藏**：垂直方向的平滑滑入/滑出效果
+- **按钮反馈**：控制按钮的缩放和背景变化反馈
+- **进度条**：播放进度的平滑更新动画
+
+## 实现细节
+- 使用CSS backdrop-filter实现毛玻璃效果
+- 使用transform和transition实现平滑动画
+- 使用JavaScript处理触摸滑动手势
+- 曲目信息区域使用文本溢出处理长文本
+
+## 使用指南
+- 播放条应与导航栏视觉协调，避免样式冲突
+- 确保专辑封面加载失败时有默认占位图
+- 长曲目名称应支持文字溢出处理
+- 与全局播放状态保持同步，确保一致的用户体验`,
+
+      'docs/components/device-frame.md': `# 设备框架组件设计文档
+
+## 组件概述
+设备框架组件模拟iPhone 15 Pro的物理外观，为应用界面提供真实的设备外观上下文，帮助用户和设计师在浏览原型时获得更接近真实使用场景的体验。
+
+## 设计规范
+- **尺寸**：1:1还原iPhone 15 Pro的物理尺寸(146.6 x 70.6 x 8.25mm)
+- **材质**：模拟钛金属边框的拉丝质感和光泽
+- **细节**：包含圆角、按钮、扬声器和接口等物理特征
+- **屏幕**：模拟2796 x 1290分辨率，460ppi的OLED显示效果
+
+## 组件结构
+1. **外壳边框**：模拟iPhone 15 Pro的钛金属边框
+2. **屏幕区域**：内嵌显示实际界面内容的容器
+3. **灵动岛**：顶部居中的药丸形状开孔
+4. **按钮区域**：侧边的音量按钮和电源按钮
+5. **底部区域**：包含扬声器网格和Lightning接口
+
+## 视觉特性
+- **阴影效果**：模拟设备在不同光线下的立体感
+- **反光效果**：边框材质的细微光泽变化
+- **圆角处理**：屏幕和外壳的精确圆角半径
+- **屏幕边缘**：2mm圆角阴影模拟OLED曲面效果
+
+## 适配方案
+- **浅色/深色模式**：
+  - 默认使用深空黑(Space Black)配色
+  - 支持切换其他iPhone 15 Pro配色选项
+- **方向适配**：支持横屏/竖屏显示模式切换
+
+## 实现细节
+- 使用CSS阴影和渐变模拟金属质感
+- 使用border-radius精确控制圆角
+- 使用定位和z-index控制层次关系
+- 使用transform实现设备旋转效果
+
+## 屏幕内容
+- 通过iframe加载实际界面内容
+- 确保内容适配设备屏幕分辨率
+- 支持触摸事件透传到内部界面
+- 模拟状态栏、灵动岛和底部手势条
+
+## 使用指南
+- 设备框架应保持视觉上的轻量，不喧宾夺主
+- 确保边框尺寸准确，提供真实的比例参考
+- 在展示多设备时保持合适的间距
+- 可提供缩放控制以适应不同显示环境`
+    };
+    
+    // 获取所有文档链接
+    document.addEventListener('DOMContentLoaded', function() {
+      // 修改所有文档链接，添加点击事件
+      const docLinks = document.querySelectorAll('a[href^="docs/"]');
+      console.log('找到文档链接数量:', docLinks.length);
+      
+      docLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        console.log('处理文档链接:', href);
+        
+        const title = link.closest('.page-link') 
+                     ? link.closest('.device-wrapper').querySelector('.device-title').innerText + '设计文档'
+                     : link.closest('.component-card') 
+                       ? link.closest('.component-card').querySelector('h3').innerText + '组件文档'
+                       : '设计文档';
+        
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          console.log('点击文档链接:', href);
+          openMarkdownModal(href, title);
+        });
+        
+        // 删除target属性，避免在新窗口打开
+        link.removeAttribute('target');
+      });
+      
+      // 设置模态框相关事件处理
+      setupModalEvents();
+    });
+    
+    // 设置模态框相关事件 - 基础版
+    function setupModalEvents() {
+      // ESC键关闭
+      document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && modal.style.display === 'block') {
+          closeMarkdownModal();
+        }
+      });
+      
+      // 点击背景关闭
+      modal.addEventListener('click', function(event) {
+        if (event.target === modal) {
+          closeMarkdownModal();
+        }
+      });
+    }
+    
+    // 简化打开Markdown模态框函数
+    function openMarkdownModal(url, title) {
+      console.log('打开模态框:', url, title);
+      
+      // 显示模态框
+      modal.style.display = 'block';
+      
+      // 设置标题
+      modalTitle.innerText = title || '文档查看';
+      
+      // 显示加载中
+      markdownContent.innerHTML = '<div class="markdown-loading"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
+      
+      // 禁用背景滚动
+      document.body.classList.add('modal-open');
+      
+      // 加载文档
+      setTimeout(() => { // 添加短延迟确保模态框已显示
+        loadDocument(url)
+          .then(content => {
+            if (!content) throw new Error('无法加载文档内容');
+            console.log('获取到文档内容，长度:', content.length);
+            console.log('文档内容前100个字符:', content.substring(0, 100));
+            console.log('文档内容最后100个字符:', content.substring(content.length - 100));
+            
+            try {
+              console.log('开始渲染Markdown内容');
+              const parsedHtml = marked.parse(content);
+              console.log('Markdown解析完成，HTML长度:', parsedHtml.length);
+              
+              // 设置HTML内容
+              markdownContent.innerHTML = parsedHtml;
+              console.log('HTML内容已设置到DOM');
+              
+              // 验证渲染后的内容
+              console.log('渲染后DOM内容长度:', markdownContent.innerHTML.length);
+              console.log('渲染后内容高度:', markdownContent.scrollHeight + 'px');
+              
+              // 应用代码高亮
+              Prism.highlightAllUnder(markdownContent);
+              
+            } catch (error) {
+              console.error('Markdown渲染错误:', error);
+              showErrorMessage(`Markdown渲染错误: ${error.message}`);
+            }
+          })
+          .catch(error => {
+            console.error('文档加载失败:', error);
+            showErrorMessage(error.message);
+          });
+      }, 100);
+    }
+    
+    // 综合加载文档的方法
+    async function loadDocument(url) {
+      console.log('尝试加载文档:', url);
+      
+      // 1. 首先检查是否有内联备选内容
+      if (inlineDocuments[url]) {
+        console.log('使用内联文档内容');
+        return inlineDocuments[url];
+      }
+      
+      try {
+        // 2. 尝试使用fetch API
+        console.log('尝试fetch加载');
+        const response = await fetch(url);
+        if (response.ok) {
+          const text = await response.text();
+          console.log(`Fetch成功，内容长度: ${text.length}`);
+          return text;
+        }
+        throw new Error(`Fetch失败(${response.status})`);
+      } catch (fetchError) {
+        console.log('Fetch失败，尝试XHR:', fetchError);
+        
+        try {
+          // 3. 尝试使用XMLHttpRequest
+          return await loadWithXHR(url);
+        } catch (xhrError) {
+          console.log('XHR也失败:', xhrError);
+          
+          // 4. 尝试从预设内容中模糊匹配
+          const filename = url.split('/').pop();
+          for (let key in inlineDocuments) {
+            if (key.includes(filename)) {
+              console.log('找到模糊匹配的内联文档');
+              return inlineDocuments[key];
+            }
+          }
+          
+          // 5. 最后尝试是否可以通过服务器重定向访问
+          try {
+            // 添加时间戳避免缓存
+            const urlWithTs = `${url}?t=${Date.now()}`;
+            const response = await fetch(urlWithTs);
+            if (response.ok) {
+              const text = await response.text();
+              console.log(`重试Fetch成功，内容长度: ${text.length}`);
+              return text;
+            }
+          } catch (lastError) {
+            console.log('所有加载方法都失败');
+          }
+          
+          throw new Error('无法以任何方式加载文档');
+        }
+      }
+    }
+    
+    // 使用XMLHttpRequest加载
+    function loadWithXHR(url) {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        
+        xhr.onload = function() {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve(xhr.responseText);
+          } else {
+            reject(new Error(`XMLHttpRequest失败(${xhr.status})`));
+          }
+        };
+        
+        xhr.onerror = function() {
+          reject(new Error('XMLHttpRequest网络错误'));
+        };
+        
+        xhr.send();
+      });
+    }
+    
+    // 显示错误信息
+    function showErrorMessage(message) {
+      markdownContent.innerHTML = `
+        <div class="text-center py-8">
+          <i class="fas fa-exclamation-circle text-red-800 text-3xl mb-4"></i>
+          <p class="text-lg font-medium mb-2">文档加载失败</p>
+          <p class="text-gray-500 dark:text-gray-400 mb-4">${message}</p>
+          <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-md text-left text-sm max-w-xl mx-auto">
+            <p class="font-semibold mb-2">可能的解决方案：</p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>检查docs目录是否存在，以及文档文件是否正确</li>
+              <li>使用本地HTTP服务器运行项目: <code>npx http-server</code> 或 <code>python -m http.server</code></li>
+              <li>刷新页面或清除浏览器缓存</li>
+              <li>尝试使用不同的浏览器</li>
+            </ul>
+          </div>
+        </div>
+      `;
+    }
+    
+    // 关闭Markdown模态框 - 简化版
+    function closeMarkdownModal() {
+      modal.style.display = 'none';
+      document.body.classList.remove('modal-open');
+    }
   </script>
 </body>
 </html> 

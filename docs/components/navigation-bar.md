@@ -2,7 +2,7 @@
 
 ## 组件概述
 
-导航栏组件是模拟iOS底部选项卡的可复用导航组件，固定在应用底部，提供应用的主要功能入口。组件包含首页、发现、搜索、我的四个主要导航选项，支持深色/浅色两种模式，并实现了精美的点击粒子动画效果。
+导航栏组件是模拟iOS底部选项卡的可复用导航组件，固定在应用底部，提供应用的主要功能入口。组件包含首页、发现、资料库、搜索、我的五个主要导航选项，支持深色/浅色两种模式，并实现了精美的点击粒子动画效果。
 
 ## 组件结构
 
@@ -21,6 +21,12 @@
   <div class="nav-item" data-name="discover" onclick="setActiveTab(this)">
     <i class="nav-icon fa-solid fa-compass"></i>
     <span class="nav-text">发现</span>
+  </div>
+  
+  <!-- 资料库 -->
+  <div class="nav-item" data-name="library" onclick="setActiveTab(this)">
+    <i class="nav-icon fa-solid fa-book"></i>
+    <span class="nav-text">资料库</span>
   </div>
   
   <!-- 搜索 -->
@@ -57,9 +63,10 @@
 
 ### 标签页切换
 
-通过点击导航项切换激活状态：
+通过点击导航项或调用函数切换激活状态：
 
 ```javascript
+// 方法1：传入DOM元素
 function setActiveTab(element) {
   // 移除所有标签的激活状态
   document.querySelectorAll('.nav-item').forEach(item => {
@@ -71,6 +78,60 @@ function setActiveTab(element) {
   
   // 创建点击粒子效果
   createParticles(element);
+}
+
+// 方法2：传入标签名称字符串
+function setActiveTab(tabName) {
+  // 查找对应的导航项
+  const navItem = document.querySelector(`.nav-item[data-name="${tabName}"]`);
+  
+  if (navItem) {
+    // 移除所有标签的激活状态
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.remove('active');
+    });
+    
+    // 为当前标签添加激活状态
+    navItem.classList.add('active');
+    
+    // 创建点击粒子效果
+    createParticles(navItem);
+  }
+}
+
+实际实现自动检测参数类型，同时支持两种方式：
+
+```javascript
+function setActiveTab(element) {
+  // 检查参数是字符串还是DOM元素
+  if (typeof element === 'string') {
+    // 如果是字符串，查找对应data-name的导航项
+    const navItem = document.querySelector(`.nav-item[data-name="${element}"]`);
+    if (navItem) {
+      // 移除所有标签的激活状态
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      
+      // 为当前标签添加激活状态
+      navItem.classList.add('active');
+      
+      // 创建点击粒子效果
+      createParticles(navItem);
+    }
+  } else {
+    // 参数是DOM元素，使用原来的逻辑
+    // 移除所有标签的激活状态
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.remove('active');
+    });
+    
+    // 为当前标签添加激活状态
+    element.classList.add('active');
+    
+    // 创建点击粒子效果
+    createParticles(element);
+  }
 }
 ```
 
@@ -198,6 +259,45 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e =
 - `data-name`: 导航项标识，可用于页面切换逻辑
 - `nav-icon`: 可替换为任何Font Awesome图标
 - `nav-text`: 自定义导航文本
+
+### 标签激活方式
+
+导航标签可以通过两种方式激活：
+
+1. 通过DOM元素：
+
+```javascript
+// 元素点击时
+function handleClick(element) {
+  setActiveTab(element);
+}
+
+// 或通过选择器获取元素
+const homeTab = document.querySelector('.nav-item[data-name="home"]');
+setActiveTab(homeTab);
+```
+
+2. 通过标签名称字符串（推荐）：
+
+```javascript
+// 直接使用导航项的data-name值
+setActiveTab('home');
+setActiveTab('discover');
+setActiveTab('library');
+setActiveTab('search');
+setActiveTab('profile');
+```
+
+这种方法更简洁，通常在页面加载或加载组件后设置导航激活状态：
+
+```javascript
+// 页面加载后激活对应标签
+setTimeout(() => {
+  if (window.setActiveTab) {
+    window.setActiveTab('home'); // 激活首页标签
+  }
+}, 100);
+```
 
 ### 页面集成示例
 

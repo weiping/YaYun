@@ -143,6 +143,12 @@
       <span class="nav-text">发现</span>
     </div>
     
+    <!-- 资料库 -->
+    <div class="nav-item" data-name="library" onclick="setActiveTab(this)">
+      <i class="nav-icon fa-solid fa-book"></i>
+      <span class="nav-text">资料库</span>
+    </div>
+    
     <!-- 搜索 -->
     <div class="nav-item" data-name="search" onclick="setActiveTab(this)">
       <i class="nav-icon fa-solid fa-search"></i>
@@ -162,16 +168,35 @@
   <script>
     // 设置当前激活的标签页
     function setActiveTab(element) {
-      // 移除所有标签的激活状态
-      document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-      });
-      
-      // 为当前标签添加激活状态
-      element.classList.add('active');
-      
-      // 创建点击粒子效果
-      createParticles(element);
+      // 检查参数是字符串还是DOM元素
+      if (typeof element === 'string') {
+        // 如果是字符串，查找对应data-name的导航项
+        const navItem = document.querySelector(`.nav-item[data-name="${element}"]`);
+        if (navItem) {
+          // 移除所有标签的激活状态
+          document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+          });
+          
+          // 为当前标签添加激活状态
+          navItem.classList.add('active');
+          
+          // 创建点击粒子效果
+          createParticles(navItem);
+        }
+      } else {
+        // 参数是DOM元素，使用原来的逻辑
+        // 移除所有标签的激活状态
+        document.querySelectorAll('.nav-item').forEach(item => {
+          item.classList.remove('active');
+        });
+        
+        // 为当前标签添加激活状态
+        element.classList.add('active');
+        
+        // 创建点击粒子效果
+        createParticles(element);
+      }
     }
     
     // 创建粒子动画效果
