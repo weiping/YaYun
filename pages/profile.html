@@ -400,7 +400,7 @@
   <!-- 引入播放条 -->
   <div id="player-bar-container">
     <!-- 内嵌播放条 -->
-    <div class="player-bar light" id="player-bar" style="height: 60px; width: 100%; position: fixed; z-index: 40; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background-color: rgba(255, 255, 255, 0.7); color: #212121; box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.05); transform: translateY(0); bottom: 83px; left: 0;">
+    <div class="player-bar light" id="player-bar" style="height: 60px; width: 100%; position: fixed; z-index: 40; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background-color: rgba(255, 255, 255, 0.7); color: #212121; box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.05); transform: translateY(0); bottom: 83px; left: 0;" onclick="navigateTo('player')">
       <div class="swipe-container" id="swipe-container">
         <div class="flex items-center justify-between h-full px-4">
           <!-- 专辑封面 -->
@@ -439,25 +439,25 @@
       <div class="particles-container" id="particles-container"></div>
       
       <!-- 首页 -->
-      <div class="nav-item" data-name="home" onclick="setActiveTab(this)" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; padding-top: 8px; color: #757575; transition: all 0.2s ease;">
+      <div class="nav-item" data-name="home" onclick="navigateTo('home')" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; padding-top: 8px; color: #757575; transition: all 0.2s ease;">
         <i class="nav-icon fa-solid fa-home" style="font-size: 24px; margin-bottom: 2px;"></i>
         <span class="nav-text" style="font-size: 10px; font-weight: 500;">首页</span>
       </div>
       
       <!-- 发现 -->
-      <div class="nav-item" data-name="discover" onclick="setActiveTab(this)" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; padding-top: 8px; color: #757575; transition: all 0.2s ease;">
+      <div class="nav-item" data-name="discover" onclick="navigateTo('discover')" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; padding-top: 8px; color: #757575; transition: all 0.2s ease;">
         <i class="nav-icon fa-solid fa-compass" style="font-size: 24px; margin-bottom: 2px;"></i>
         <span class="nav-text" style="font-size: 10px; font-weight: 500;">发现</span>
       </div>
       
       <!-- 搜索 -->
-      <div class="nav-item" data-name="search" onclick="setActiveTab(this)" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; padding-top: 8px; color: #757575; transition: all 0.2s ease;">
+      <div class="nav-item" data-name="search" onclick="navigateTo('search')" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; padding-top: 8px; color: #757575; transition: all 0.2s ease;">
         <i class="nav-icon fa-solid fa-search" style="font-size: 24px; margin-bottom: 2px;"></i>
         <span class="nav-text" style="font-size: 10px; font-weight: 500;">搜索</span>
       </div>
       
       <!-- 我的 -->
-      <div class="nav-item active" data-name="profile" onclick="setActiveTab(this)" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; padding-top: 8px; color: #8B0000; transition: all 0.2s ease;">
+      <div class="nav-item active" data-name="profile" onclick="navigateTo('profile')" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; padding-top: 8px; color: #8B0000; transition: all 0.2s ease;">
         <i class="nav-icon fa-solid fa-user" style="font-size: 24px; margin-bottom: 2px;"></i>
         <span class="nav-text" style="font-size: 10px; font-weight: 500;">我的</span>
       </div>
@@ -883,6 +883,25 @@
     
     function stopProgressAnimation() {
       clearInterval(progressInterval);
+    }
+
+    function navigateTo(page) {
+      const pageMap = {
+        home: 'home.html',
+        discover: 'discover.html',
+        search: 'search.html',
+        album: 'album.html',
+        artist: 'artist.html',
+        playlist: 'playlist.html',
+        profile: 'profile.html',
+        player: 'player.html'
+      };
+      const target = pageMap[page] || 'home.html';
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'navigate', page: target }, '*');
+      } else {
+        window.location.href = target;
+      }
     }
   </script>
 </body>

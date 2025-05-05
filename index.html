@@ -127,7 +127,7 @@
         <h2 class="device-title">首页</h2>
         <div class="device-frame">
           <div class="device-screen-container">
-            <iframe src="pages/home.html" class="device-screen" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
+            <iframe src="pages/home.html" class="device-screen" id="device-home" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
           </div>
         </div>
         <div class="page-link">
@@ -140,7 +140,7 @@
         <h2 class="device-title">发现</h2>
         <div class="device-frame">
           <div class="device-screen-container">
-            <iframe src="pages/discover.html" class="device-screen" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
+            <iframe src="pages/discover.html" class="device-screen" id="device-discover" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
           </div>
         </div>
         <div class="page-link">
@@ -153,7 +153,7 @@
         <h2 class="device-title">专辑详情</h2>
         <div class="device-frame">
           <div class="device-screen-container">
-            <iframe src="pages/album.html" class="device-screen" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
+            <iframe src="pages/album.html" class="device-screen" id="device-album" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
           </div>
         </div>
         <div class="page-link">
@@ -166,7 +166,7 @@
         <h2 class="device-title">歌单详情</h2>
         <div class="device-frame">
           <div class="device-screen-container">
-            <iframe src="pages/playlist.html" class="device-screen" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
+            <iframe src="pages/playlist.html" class="device-screen" id="device-playlist" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
           </div>
         </div>
         <div class="page-link">
@@ -179,7 +179,7 @@
         <h2 class="device-title">艺术家详情</h2>
         <div class="device-frame">
           <div class="device-screen-container">
-            <iframe src="pages/artist.html" class="device-screen" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
+            <iframe src="pages/artist.html" class="device-screen" id="device-artist" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
           </div>
         </div>
         <div class="page-link">
@@ -205,7 +205,7 @@
         <h2 class="device-title">搜索</h2>
         <div class="device-frame">
           <div class="device-screen-container">
-            <iframe src="pages/search.html" class="device-screen" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
+            <iframe src="pages/search.html" class="device-screen" id="device-search" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
           </div>
         </div>
         <div class="page-link">
@@ -231,7 +231,7 @@
         <h2 class="device-title">我的</h2>
         <div class="device-frame">
           <div class="device-screen-container">
-            <iframe src="pages/profile.html" class="device-screen" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
+            <iframe src="pages/profile.html" class="device-screen" id="device-profile" onload="this.contentWindow.document.body.style.overflow='auto'"></iframe>
           </div>
         </div>
         <div class="page-link">
@@ -411,6 +411,22 @@
         }
       });
     }); 
+
+    // 监听iframe导航跳转postMessage
+    window.addEventListener('message', function(event) {
+      if (!event.data || event.data.type !== 'navigate' || !event.data.page) return;
+      // 找到发送消息的iframe
+      const iframes = document.querySelectorAll('iframe.device-screen');
+      for (const iframe of iframes) {
+        try {
+          if (iframe.contentWindow === event.source) {
+            // 只切换当前iframe的src
+            iframe.src = 'pages/' + event.data.page;
+            break;
+          }
+        } catch (e) {}
+      }
+    });
   </script>
 </body>
 </html> 

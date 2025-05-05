@@ -548,7 +548,7 @@
   <!-- 引入播放条 -->
   <div id="player-bar-container">
     <!-- 内联播放条 -->
-    <div class="player-bar light" id="player-bar" style="height: 60px; width: 100%; position: fixed; bottom: 83px; left: 0; z-index: 40; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.05); background-color: rgba(255, 255, 255, 0.7); color: #212121;">
+    <div class="player-bar light" id="player-bar" style="height: 60px; width: 100%; position: fixed; bottom: 83px; left: 0; z-index: 40; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.05); background-color: rgba(255, 255, 255, 0.7); color: #212121;" onclick="navigateTo('player')">
       <div class="swipe-container" id="swipe-container">
         <div class="flex items-center justify-between h-full px-4">
           <!-- 专辑封面 -->
@@ -587,25 +587,25 @@
       <div class="particles-container" id="particles-container"></div>
       
       <!-- 首页 -->
-      <div class="nav-item active" data-name="home" onclick="setActiveTab(this)">
+      <div class="nav-item active" data-name="home" onclick="navigateTo('home')">
         <i class="nav-icon fa-solid fa-home"></i>
         <span class="nav-text">首页</span>
       </div>
       
       <!-- 发现 -->
-      <div class="nav-item" data-name="discover" onclick="setActiveTab(this)">
+      <div class="nav-item" data-name="discover" onclick="navigateTo('discover')">
         <i class="nav-icon fa-solid fa-compass"></i>
         <span class="nav-text">发现</span>
       </div>
       
       <!-- 搜索 -->
-      <div class="nav-item" data-name="search" onclick="setActiveTab(this)">
+      <div class="nav-item" data-name="search" onclick="navigateTo('search')">
         <i class="nav-icon fa-solid fa-search"></i>
         <span class="nav-text">搜索</span>
       </div>
       
       <!-- 我的 -->
-      <div class="nav-item" data-name="profile" onclick="setActiveTab(this)">
+      <div class="nav-item" data-name="profile" onclick="navigateTo('profile')">
         <i class="nav-icon fa-solid fa-user"></i>
         <span class="nav-text">我的</span>
       </div>
@@ -929,55 +929,26 @@
       
       // 初始化轮播图
       initBanner();
-
-      // 加载组件
-      /*
-      try {
-        // 尝试从外部加载组件（用于与index.html配合使用）
-        fetch('/components/status-bar.html')
-          .then(response => response.text())
-          .then(html => {
-            document.getElementById('status-bar-container').innerHTML = html;
-            updateStatusTime();
-          })
-          .catch(error => {
-            console.log('使用内联状态栏:', error);
-          });
-        
-        fetch('/components/navigation-bar.html')
-          .then(response => response.text())
-          .then(html => {
-            document.getElementById('navigation-bar-container').innerHTML = html;
-            setTimeout(() => {
-              setActiveTab(document.querySelector('[data-name="home"]'));
-            }, 100);
-          })
-          .catch(error => {
-            console.log('使用内联导航栏:', error);
-          });
-        
-        // 更新播放条的深色/浅色模式
-        const playerBar = document.getElementById('player-bar');
-        if (playerBar) {
-          if (prefersDark) {
-            playerBar.classList.remove('light');
-            playerBar.classList.add('dark');
-            playerBar.style.backgroundColor = 'rgba(30, 30, 30, 0.7)';
-            playerBar.style.color = '#FFFFFF';
-            document.getElementById('artist-name').style.color = '#AAAAAA';
-          } else {
-            playerBar.classList.remove('dark');
-            playerBar.classList.add('light');
-            playerBar.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
-            playerBar.style.color = '#212121';
-            document.getElementById('artist-name').style.color = '#757575';
-          }
-        }
-      } catch (error) {
-        console.log('使用内联组件:', error);
-      }
-      */
     });
+
+    function navigateTo(page) {
+      const pageMap = {
+        home: 'home.html',
+        discover: 'discover.html',
+        search: 'search.html',
+        album: 'album.html',
+        artist: 'artist.html',
+        playlist: 'playlist.html',
+        profile: 'profile.html',
+        player: 'player.html'
+      };
+      const target = pageMap[page] || 'home.html';
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'navigate', page: target }, '*');
+      } else {
+        window.location.href = target;
+      }
+    }
   </script>
 </body>
 </html> 
