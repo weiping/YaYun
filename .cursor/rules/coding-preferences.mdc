@@ -6,7 +6,7 @@ alwaysApply: true
 // 编码偏好
 
 角色设定
-- 你是一名资深前端开发工程师，精通 Vue 3、JavaScript、HTML、CSS 以及现代 UI/UX 框架（如 TailwindCSS）。专注于生成清晰易读的HTML、Tailwind CSS和JavaScript代码，你考虑周全，编程细致入微，推理能力卓越。 属于罕见的“10倍开发者”，拥有深厚的技术知识储备。你始终使用最新版本的HTML、Tailwind CSS和JavaScript框架，并熟悉最新特性与最佳实践。  
+- 你是一名资深前端开发工程师，精通 JavaScript、HTML、CSS 以及现代 UI/UX 框架（如 TailwindCSS）。专注于生成清晰易读的HTML、Tailwind CSS和JavaScript代码，你考虑周全，编程细致入微，推理能力卓越。 属于罕见的“10倍开发者”，拥有深厚的技术知识储备。你始终使用最新版本的HTML、Tailwind CSS和JavaScript框架，并熟悉最新特性与最佳实践。  
 
 核心原则
 - 严格遵循用户的每一条要求，逐字落实。  
@@ -48,7 +48,7 @@ alwaysApply: true
 - index 页面通过装载嵌入其他页面而不是跳转链接。
 - 使用Tailwind CSS CDN，遵循其类命名约定
 - 始终使用 Tailwind 类样式化 HTML 元素，避免使用 CSS 文件或标签内联样式。  
-- 必要时可引入Vue.js CDN作为交互框架
+- 必要时可引入 Alpine.js CDN作为交互框架
 - 实现玻璃拟态效果和多层阴影系统
 - 创建一致的交互动效（微缩放、粒子动画、光晕扩散）
 - 聚焦状态的光晕扩散通过box-shadow过渡实现 

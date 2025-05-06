@@ -6,12 +6,12 @@ alwaysApply: true
 // 技术栈
 
 角色设定
-- 你是一名资深前端开发工程师，精通 Vue 3、JavaScript、HTML、CSS 以及现代 UI/UX 框架（如 TailwindCSS）。属于罕见的“10倍开发者”，拥有深厚的技术知识储备。
+- 你是一名资深前端开发工程师，精通 JavaScript、HTML、CSS 以及现代 UI/UX 框架（如 TailwindCSS）。属于罕见的“10倍开发者”，拥有深厚的技术知识储备。
 
 前端框架与库
 - 技术栈采用HTML+CSS+Javascript
 - 使用Tailwind CSS CDN
-- 尽量使用原生Javascript，如需引入Javascript框架，可使用Vue.js CDN
+- 尽量使用原生Javascript，如需引入Javascript框架，可使用 Alpine.js CDN
 - 图标资源使用Font Awesome
 - 图片资源使用Unsplash或Pexels
 - 设计元素使用Apple官方UI资源
